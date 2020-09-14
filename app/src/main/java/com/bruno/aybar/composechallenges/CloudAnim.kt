@@ -2,6 +2,7 @@ package com.bruno.aybar.composechallenges
 
 import androidx.compose.animation.core.*
 import androidx.compose.animation.transition
+import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
@@ -38,9 +39,6 @@ import kotlin.random.Random
 
 private val cloudColor = Color.White
 
-private val bigCircleRadius = 200f
-private val smallCircleSize = 220f
-private val mediumCircleSize = 270f
 private val expandedSize = 120f
 
 private val cloudMergeProgress = FloatPropKey()
@@ -51,6 +49,8 @@ private fun Float.plus(value: Float, givenThat: ()->Boolean): Float {
     return this + if(givenThat()) value else 0f
 }
 
+private fun Float.isExecuting(maxValue: Float = 1f) = this > 0f && this < maxValue
+
 @Composable
 fun CloudAnim(cloudState: CloudState, modifier: Modifier) {
 
@@ -59,64 +59,99 @@ fun CloudAnim(cloudState: CloudState, modifier: Modifier) {
         toState = cloudState
     )
 
-    fun isBubbling() = state[bubblesProgress] > 0
-    fun isCovering() = state[coveringProgress] > 0
+    fun isStart() = state[cloudMergeProgress] == 0f
+    fun isMerging() = state[cloudMergeProgress].isExecuting()
+    fun isBubbling() = state[bubblesProgress].isExecuting(maxValue = 1f)
+    fun isCovering() = state[coveringProgress].isExecuting()
 
-    Canvas(modifier) {
+    println("Area: ")
 
-        var sizeMultiplier = (1f + state[cloudMergeProgress])
-            .plus(state[bubblesProgress], givenThat = { isBubbling() })
-        val verticalOffset = bigCircleRadius * sizeMultiplier * state[bubblesProgress];
-        sizeMultiplier = sizeMultiplier.plus(state[coveringProgress] * 100, givenThat = { isCovering() })
+    Canvas(modifier.preferredSize(200.dp)) {
+        val startingCircleSize = size.width * 0.25f
+        val mergedCircleSize = size.width * 0.35f
+        val expandedCircleSize = size.width * 0.7f
+        val coveredCircleSize = size.height
 
-        val mainCircleSize = bigCircleRadius * sizeMultiplier
+        val mainCircleSize = when(cloudState) {
+            CloudState.Normal -> startingCircleSize
+            CloudState.Animating -> when {
+                isMerging() -> {
+                    startingCircleSize + state[cloudMergeProgress] * (mergedCircleSize - startingCircleSize)
+                }
+                isBubbling() -> {
+                    mergedCircleSize + state[bubblesProgress] * (expandedCircleSize - mergedCircleSize)
+                }
+                isCovering() -> {
+                    expandedCircleSize + state[coveringProgress] * (coveredCircleSize - expandedCircleSize)
+                }
+                else -> startingCircleSize
+            }
+            CloudState.End -> TODO()
+        }
+        println("Main circle: $mainCircleSize")
+        println("Main area: $size")
+
         val mainCircleCenter = Offset(
             x = center.x,
-            y = center.y - verticalOffset
+            y = center.y - when {
+                isCovering() -> expandedCircleSize
+                isBubbling() -> mainCircleSize * state[bubblesProgress]
+                else -> {
+                    println("NO OFFSET! ")
+                    println("bubbles: ${state[bubblesProgress]} ")
+                    println("covering: ${state[coveringProgress]} ")
+                    println("merging: ${state[cloudMergeProgress]} ")
+                    0f
+                } // no offset
+            }
         )
+        println("Main center: $mainCircleCenter")
+
         drawCircle(color = cloudColor, radius = mainCircleSize, center = mainCircleCenter)
 
-        when(cloudState) {
-            CloudState.Normal -> drawSideClouds(state[cloudMergeProgress])
-            CloudState.Animating -> {
-                if(state[bubblesProgress] == 0f) {
-                    drawSideClouds(state[cloudMergeProgress])
-                }
-                drawBubbles(
-                    mainCircleCenter = mainCircleCenter,
-                    mainCircleSize = mainCircleSize,
-                    progress = state[bubblesProgress] + state[coveringProgress]
-                )
-            }
-            CloudState.End -> { }
-        }
+//        when(cloudState) {
+//            CloudState.Normal -> drawSideClouds(state[cloudMergeProgress])
+//            CloudState.Animating -> {
+//                if(state[bubblesProgress] == 0f) {
+//                    drawSideClouds(state[cloudMergeProgress])
+//                }
+////                drawBubbles(
+////                    mainCircleCenter = mainCircleCenter,
+////                    mainCircleSize = mainCircleSize,
+////                    progress = state[bubblesProgress] + state[coveringProgress]
+////                )
+//            }
+//            CloudState.End -> { }
+//        }
     }
 }
 
 private fun DrawScope.drawSideClouds(mergeProgress: Float) {
-    val leftCloudSize = Size(smallCircleSize + expandedSize, smallCircleSize)
-    val leftCloudAnimationOffset = mergeProgress * 30
-    drawRoundRect(
-        color = cloudColor,
-        size = leftCloudSize,
-        radius = Radius(smallCircleSize / 2),
-        topLeft = Offset(
-            x = center.x - smallCircleSize - expandedSize / 2 + leftCloudAnimationOffset,
-            y = center.y + bigCircleRadius - smallCircleSize
-        )
-    )
-
-    val rightCloudSize = Size(mediumCircleSize + expandedSize, mediumCircleSize)
-    val rightCloudAnimOffset = mergeProgress * 30
-    drawRoundRect(
-        color = cloudColor,
-        size = rightCloudSize,
-        radius = Radius(mediumCircleSize / 2),
-        topLeft = Offset(
-            x = center.x - expandedSize - rightCloudAnimOffset,
-            y = center.y + bigCircleRadius - mediumCircleSize
-        )
-    )
+//    val leftCircleSize = size.width * 0.3f
+//    val leftCloudSize = Size(leftCircleSize + expandedSize, leftCircleSize)
+//    val leftCloudAnimationOffset = mergeProgress * 30
+//    drawRoundRect(
+//        color = cloudColor,
+//        size = leftCloudSize,
+//        radius = Radius(leftCircleSize / 2),
+//        topLeft = Offset(
+//            x = center.x - leftCircleSize - expandedSize / 2 + leftCloudAnimationOffset,
+//            y = center.y + bigCircleRadius - leftCircleSize
+//        )
+//    )
+//
+//    val rightCircleSize = size.width * 0.4f
+//    val rightCloudSize = Size(rightCircleSize + expandedSize, rightCircleSize)
+//    val rightCloudAnimOffset = mergeProgress * 30
+//    drawRoundRect(
+//        color = cloudColor,
+//        size = rightCloudSize,
+//        radius = Radius(mediumCircleSize / 2),
+//        topLeft = Offset(
+//            x = center.x - expandedSize - rightCloudAnimOffset,
+//            y = center.y + bigCircleRadius - mediumCircleSize
+//        )
+//    )
 }
 
 private fun DrawScope.drawBubbles(
@@ -197,7 +232,7 @@ private fun cloudTransition() = transitionDefinition<CloudState> {
     }
     state(CloudState.Animating) {
         this[cloudMergeProgress] = 1f
-        this[bubblesProgress] = 1.5f
+        this[bubblesProgress] = 1f
         this[coveringProgress] = 1f
     }
     state(CloudState.End) {
@@ -209,7 +244,7 @@ private fun cloudTransition() = transitionDefinition<CloudState> {
     transition(fromState = CloudState.Normal, toState = CloudState.Animating) {
         cloudMergeProgress using tween(delayMillis = 0, durationMillis = 1000)
         bubblesProgress using tween(delayMillis = 1000, durationMillis = 3500, easing = LinearEasing)
-        coveringProgress using tween(delayMillis = 4000, durationMillis = 10000, easing = LinearEasing)
+        coveringProgress using tween(delayMillis = 3500, durationMillis = 1500, easing = LinearEasing)
     }
     transition(fromState = CloudState.Animating, toState = CloudState.Normal) {
         cloudMergeProgress using tween(durationMillis = 0, )
@@ -234,14 +269,24 @@ private fun CirclePreview() {
                         top.linkTo(parent.top)
                     }
                 )
-
-                CloudAnim(cloudState.value, modifier = Modifier
+//
+//                CloudAnim(cloudState.value, modifier = Modifier
+//                    .constrainAs(cloudRef) {
+//                        top.linkTo(titleRef.bottom)
+//                        bottom.linkTo(backupRef.top)
+//                        start.linkTo(parent.start)
+//                        end.linkTo(parent.end)
+//                    })
+                Box(modifier = Modifier
                     .constrainAs(cloudRef) {
                         top.linkTo(titleRef.bottom)
                         bottom.linkTo(backupRef.top)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                    })
+                    }) {
+//                    Text(text = "FAA", modifier = Modifier.fillMaxSize())
+                    CloudAnim(cloudState.value, modifier = Modifier.fillMaxSize())
+                }
 
                 AnimateButtons(cloudState, modifier = Modifier.padding(16.dp)
                     .constrainAs(backupRef) {
