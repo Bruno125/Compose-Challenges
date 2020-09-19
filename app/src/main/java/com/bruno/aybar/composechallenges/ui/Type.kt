@@ -1,14 +1,17 @@
 package com.bruno.aybar.composechallenges.ui
 
+import androidx.compose.animation.animatedFloat
+import androidx.compose.animation.core.AnimationConstants
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Typography
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawShadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -16,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.ui.tooling.preview.Preview
+import com.bruno.aybar.composechallenges.utils.animationSequence
 
 // Set of Material typography styles to start with
 val typography = Typography(
@@ -51,24 +55,42 @@ val typography = Typography(
     )
 )
 
+val buttonHeight = 60.dp
+
 @Composable
 fun CancelButton(
     onClick: ()->Unit,
-    modifier: Modifier = Modifier.width(150.dp),
+    widthMultiplier: Float = 1f,
+    modifier: Modifier = Modifier
 ) {
-    Button(
+    OutlinedButton(
         onClick = onClick,
-        backgroundColor = transparent,
-        modifier = modifier,
+        modifier = modifier
+            .preferredWidth(150.dp * widthMultiplier)
+            .preferredHeight(buttonHeight),
+    ) {
+        Text(text = "Cancel")
+    }
+}
+
+@Composable
+fun BackupButton(onClick: ()->Unit, modifier: Modifier = Modifier) {
+    val backupButtonSizeMultiplier = animatedFloat(initVal = 1f)
+    Button(
+        onClick = {
+            backupButtonSizeMultiplier.animationSequence(
+                targetValues = listOf(0.95f,1f),
+                anim = TweenSpec(durationMillis = AnimationConstants.DefaultDurationMillis / 2)
+            )
+            onClick()
+        },
+        backgroundColor = MaterialTheme.colors.primary,
+        modifier = modifier
+            .preferredWidth(240.dp * backupButtonSizeMultiplier.value)
+            .preferredHeight(buttonHeight * backupButtonSizeMultiplier.value),
         shape = RoundedCornerShape(10.dp)
     ) {
-        Text(
-            text = "Cancel",
-            style = typography.button.merge(TextStyle(
-                color = MaterialTheme.colors.primary,
-                fontWeight = FontWeight.Black,
-            ))
-        )
+        Text(text = "Create Backup")
     }
 }
 
@@ -91,6 +113,7 @@ fun TypographyPreview() {
                 Button(onClick = {}) { Text("Button") }
                 Spacer(Modifier.height(16.dp))
                 CancelButton(onClick = {})
+                BackupButton(onClick = {})
             }
         }
     }
