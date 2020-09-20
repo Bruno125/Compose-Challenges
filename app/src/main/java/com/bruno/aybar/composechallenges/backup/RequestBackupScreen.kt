@@ -1,7 +1,6 @@
 package com.bruno.aybar.composechallenges.backup
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
@@ -12,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.ui.tooling.preview.Preview
 import com.bruno.aybar.composechallenges.ui.ComposeChallengesTheme
-import com.bruno.aybar.composechallenges.ui.typography
 
 @Composable
 fun RequestBackupScreen() {
@@ -22,11 +20,7 @@ fun RequestBackupScreen() {
 
         Column(Modifier.fillMaxSize()) {
 
-            Text(
-                text = "Cloud Storage",
-                style = typography.subtitle1,
-                modifier = Modifier.padding(16.dp)
-            )
+            BackupTitle(state.value)
 
             Cloud(Modifier
                 .height(200.dp)
