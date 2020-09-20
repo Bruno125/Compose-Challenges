@@ -1,33 +1,23 @@
 package com.bruno.aybar.composechallenges.backup
 
-import androidx.compose.animation.animatedFloat
-import androidx.compose.animation.core.*
-import androidx.compose.animation.transition
-import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
+import androidx.compose.foundation.layout.ConstraintLayout
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawOpacity
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.ui.tooling.preview.Preview
-import com.bruno.aybar.composechallenges.ui.BackupButton
-import com.bruno.aybar.composechallenges.ui.CancelButton
 import com.bruno.aybar.composechallenges.ui.ComposeChallengesTheme
 import com.bruno.aybar.composechallenges.ui.typography
-import com.bruno.aybar.composechallenges.utils.animationSequence
 
 @Composable
 fun RequestBackupScreen() {
     Surface {
 
-        val state = mutableStateOf<BackupUi>(BackupUi.RequestBackup)
+        val state = mutableStateOf<BackupUi>(BackupUi.RequestBackup("28 may 2020"))
 
         ConstraintLayout(Modifier.fillMaxSize()) {
             val (titleRef, backupRef) = createRefs()
@@ -51,7 +41,7 @@ fun RequestBackupScreen() {
                     }
                 ,
                 onBackup = { state.value = BackupUi.BackupInProgress(0f) },
-                onCancel = { state.value = BackupUi.RequestBackup },
+                onCancel = { state.value = BackupUi.RequestBackup("28 may 2020") },
                 onOk = {  })
 
         }

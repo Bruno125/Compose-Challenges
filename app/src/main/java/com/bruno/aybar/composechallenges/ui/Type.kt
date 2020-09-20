@@ -25,8 +25,8 @@ import com.bruno.aybar.composechallenges.utils.animationSequence
 val typography = Typography(
     subtitle1 = TextStyle(
         fontFamily = FontFamily.Monospace,
-        fontWeight = FontWeight.Bold,
-        fontSize = 16.sp
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 18.sp
     ),
     body1 = TextStyle(
         fontFamily = FontFamily.Monospace,
