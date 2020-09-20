@@ -115,15 +115,11 @@ private fun BackupButton(onClick: ()->Unit, modifier: Modifier, transition: Tran
 private fun CancelButton(onClick: ()->Unit, modifier: Modifier, transition: TransitionState) {
     if(transition[cancelButtonAlpha] == 0f) return
 
-    val cancelWidth = transition[cancelButtonWidth].dp
-
-    print("TEST - cancel width: $cancelWidth")
-
     OutlinedButton(
         onClick = onClick,
         modifier = modifier
             .drawOpacity(transition[cancelButtonAlpha])
-            .preferredWidth(cancelWidth)
+            .preferredWidth(transition[cancelButtonWidth].dp)
             .preferredHeight(buttonHeight),
     ) {
         Text(text = "Cancel")

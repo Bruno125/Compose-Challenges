@@ -20,7 +20,6 @@ fun RequestBackupScreen() {
     Surface {
 
         val state = mutableStateOf<BackupUi>(BackupUi.RequestBackup("28 may 2020"))
-//        val state = mutableStateOf<BackupUi>(BackupUi.BackupInProgress(0f))
 
         ConstraintLayout(Modifier.fillMaxSize()) {
             val (titleRef, backupRef) = createRefs()

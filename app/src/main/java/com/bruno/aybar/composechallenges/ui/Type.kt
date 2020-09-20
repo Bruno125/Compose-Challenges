@@ -56,44 +56,6 @@ val typography = Typography(
 )
 
 val buttonHeight = 60.dp
-
-@Composable
-fun CancelButton(
-    onClick: ()->Unit,
-    widthMultiplier: Float = 1f,
-    modifier: Modifier = Modifier
-) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier
-            .preferredWidth(150.dp * widthMultiplier)
-            .preferredHeight(buttonHeight),
-    ) {
-        Text(text = "Cancel")
-    }
-}
-
-@Composable
-fun BackupButton(onClick: ()->Unit, modifier: Modifier = Modifier) {
-    val backupButtonSizeMultiplier = animatedFloat(initVal = 1f)
-    Button(
-        onClick = {
-            backupButtonSizeMultiplier.animationSequence(
-                targetValues = listOf(0.95f,1f),
-                anim = TweenSpec(durationMillis = AnimationConstants.DefaultDurationMillis / 2)
-            )
-            onClick()
-        },
-        backgroundColor = MaterialTheme.colors.primary,
-        modifier = modifier
-            .preferredWidth(240.dp * backupButtonSizeMultiplier.value)
-            .preferredHeight(buttonHeight * backupButtonSizeMultiplier.value),
-        shape = RoundedCornerShape(10.dp)
-    ) {
-        Text(text = "Create Backup")
-    }
-}
-
 @Preview
 @Composable
 fun TypographyPreview() {
@@ -112,8 +74,6 @@ fun TypographyPreview() {
                 Spacer(Modifier.height(16.dp))
                 Button(onClick = {}) { Text("Button") }
                 Spacer(Modifier.height(16.dp))
-                CancelButton(onClick = {})
-                BackupButton(onClick = {})
             }
         }
     }
