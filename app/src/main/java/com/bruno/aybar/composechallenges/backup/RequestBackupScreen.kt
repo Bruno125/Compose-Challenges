@@ -22,16 +22,18 @@ fun RequestBackupScreen() {
 
             BackupTitle(state.value)
 
-            Cloud(Modifier
-                .height(200.dp)
-                .fillMaxWidth())
+            BackupCloud(
+                ui = state.value,
+                modifier = Modifier
+                    .height(350.dp)
+                    .fillMaxWidth()
+            )
 
             Body(
                 state = state.value,
-                modifier = Modifier
-                    .gravity(Alignment.CenterHorizontally)
-                    .weight(1f)
+                modifier = Modifier.gravity(Alignment.CenterHorizontally)
             )
+            Spacer(Modifier.weight(1f))
 
             BottomActionButtons(
                 ui = state.value,
