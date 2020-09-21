@@ -26,8 +26,7 @@ private val cancelButtonWidth = IntPropKey("Cancel button width")
 
 enum class ButtonsState {
     CreateBackup,
-    Cancel,
-    Ok
+    Cancel
 }
 
 class BottomActionButtonState {
@@ -42,8 +41,7 @@ class BottomActionButtonState {
     fun update(ui: BackupUi) {
         val newState = when(ui) {
             is BackupUi.RequestBackup -> ButtonsState.CreateBackup
-            is BackupUi.BackupInProgress -> ButtonsState.Cancel
-            is BackupUi.BackupCompleted -> ButtonsState.Ok
+            else -> ButtonsState.Cancel
         }
         if(newState != current) {
             current = newState
@@ -154,10 +152,6 @@ private val AnimateButtonsTransition = transitionDefinition<ButtonsState> {
         this[backupButtonSizeMultiplier] = 1f
         this[cancelButtonAlpha] = 0.6f
         this[cancelButtonWidth] = 150
-    }
-    state(ButtonsState.Ok) {
-        this[backupButtonAlpha] = 0f
-        this[cancelButtonAlpha] = 0f
     }
 
     transition(fromState = ButtonsState.CreateBackup, toState = ButtonsState.Cancel) {

@@ -4,21 +4,27 @@ import androidx.compose.animation.core.*
 import androidx.compose.animation.transition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Radius
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.unit.dp
 import androidx.ui.tooling.preview.Preview
 import com.bruno.aybar.composechallenges.ui.ComposeChallengesTheme
+import com.bruno.aybar.composechallenges.ui.purple1
+import com.bruno.aybar.composechallenges.ui.purple2
+import com.bruno.aybar.composechallenges.ui.purple3
+import kotlin.random.Random
 
 enum class CloudState {
-    CLOUD, MERGED,
+    CLOUD, MERGED, EXPANDING
 }
 
 private val cloudColor = Color.White
@@ -32,8 +38,11 @@ class AnimatedCloudState {
         private set
     var animatingTo by mutableStateOf(CloudState.CLOUD)
         private set
+    var progress = 0f
+        private set
 
     fun update(ui :BackupUi) {
+        updateProgress(ui)
         val newState = when(ui) {
             is BackupUi.RequestBackup -> CloudState.CLOUD
             else -> CloudState.MERGED
@@ -45,6 +54,12 @@ class AnimatedCloudState {
 
     fun onAnimationCompleted() {
         current = animatingTo
+    }
+
+    private fun updateProgress(ui: BackupUi) {
+        if(ui is BackupUi.BackupInProgress) {
+            progress = ui.progress / 100f
+        }
     }
 
 }
@@ -64,45 +79,37 @@ fun BackupCloud(ui: BackupUi, modifier: Modifier) {
 
     Canvas(modifier) {
         val baseRadius = size.height / 4
-        val actualRadius = baseRadius * transition[circleSize]
+        val multiplier = transition[circleSize] + cloudState.progress * 1.5f
+        val actualRadius = baseRadius * multiplier
+
+        val verticalCenter = if(cloudState.progress != 0f) {
+            val baseline = center.y + baseRadius * transition[circleSize]
+            baseline - actualRadius
+        } else center.y
 
         drawCircle(
             color = cloudColor,
-            radius = actualRadius
+            radius = actualRadius,
+            center = Offset(
+                center.x,
+                verticalCenter
+            )
         )
 
-        drawSideClouds(
-            baseRadius,
-            actualRadius,
-            transition[sideCloudsOffset]
-        )
-    }
-}
+        drawSideClouds(baseRadius, transition[sideCloudsOffset])
 
-private val cloudAnimation = transitionDefinition<CloudState> {
-    state(CloudState.CLOUD) {
-        this[circleSize] = 1f
-        this[sideCloudsOffset] = 0f
-    }
-    state(CloudState.MERGED) {
-        this[circleSize] = 1.5f
-        this[sideCloudsOffset] = 1f
-    }
-
-    val duration = 1000
-    transition(fromState = CloudState.CLOUD, toState = CloudState.MERGED) {
-        circleSize using tween(durationMillis = duration)
-        sideCloudsOffset using tween(durationMillis = duration)
-    }
-    transition(fromState = CloudState.MERGED, toState = CloudState.CLOUD) {
-        circleSize using tween(durationMillis = duration)
-        sideCloudsOffset using tween(durationMillis = duration)
+        if(cloudState.progress != 0f) {
+            drawBubbles(
+                mainCircleCenter = Offset(center.x, verticalCenter),
+                mainCircleSize = actualRadius,
+                progress = cloudState.progress
+            )
+        }
     }
 }
 
 private fun DrawScope.drawSideClouds(
     baseRadius: Float,
-    actualRadius: Float,
     mergeProgress: Float
 ) {
     val bottom = center.y + baseRadius
@@ -137,6 +144,108 @@ private fun DrawScope.drawSideClouds(
 
 }
 
+private fun DrawScope.drawBubbles(
+    mainCircleCenter: Offset,
+    mainCircleSize: Float,
+    progress: Float
+) {
+    val circleBottom = mainCircleCenter.y + mainCircleSize
+    val relativeProgress = progress * 100 / 2
+
+    clipPath(Path().apply {
+        addRoundRect(
+            RoundRect(
+                left = mainCircleCenter.x - mainCircleSize,
+                right = mainCircleCenter.x + mainCircleSize,
+                top = mainCircleCenter.y - mainCircleSize,
+                bottom = circleBottom,
+                radius = Radius(mainCircleSize, mainCircleSize)
+            )
+        )
+    }) {
+
+        bubbles.forEach {
+
+            val verticalPosition = circleBottom +
+                it.size +
+                it.initialPosition -
+                relativeProgress * it.verticalSpeed
+
+            val isOutSide = verticalPosition > circleBottom
+            val horizontalOffset = if(isOutSide) 0f else {
+                it.direction * it.horizontalSpeed * (progress) * relativeProgress
+            }
+
+            drawCircle(
+                color = it.color,
+                radius = it.size,
+                center = Offset(
+                    x = mainCircleCenter.x + horizontalOffset,
+                    y = verticalPosition
+                )
+            )
+        }
+
+    }
+}
+
+val bubbles = (0..250).map {
+    Bubble(
+        size = 30f + when(it) {
+            in 0..20 -> Random.nextInt(from = 10, until = 30)
+            in 20..50 -> Random.nextInt(20,50)
+            else -> Random.nextInt(0,60)
+        },
+        color = when(Random.nextInt(6)) {
+            1,2 -> purple1
+            3,4 -> purple2
+            else -> purple3
+        },
+        direction = if(Random.nextBoolean()) 1f else -1f,
+        horizontalSpeed = when(it) {
+            in 0..30 -> Random.nextInt(5, 20)
+            in 30..80 -> Random.nextInt(1,20)
+            else -> Random.nextInt(1,20)
+        }.toFloat(),
+        verticalSpeed = when(it) {
+            in 0..20 -> Random.nextInt(50, 80)
+            in 20..60 -> Random.nextInt(60,80)
+            else -> Random.nextInt(70,80)
+        },
+        initialPosition = it * 20f,
+    )
+}
+
+data class Bubble(
+    val color: Color,
+    val direction: Float,
+    val horizontalSpeed: Float,
+    val verticalSpeed: Int,
+    val size: Float,
+    val initialPosition: Float
+)
+
+
+private val cloudAnimation = transitionDefinition<CloudState> {
+    state(CloudState.CLOUD) {
+        this[circleSize] = 1f
+        this[sideCloudsOffset] = 0f
+    }
+    state(CloudState.MERGED) {
+        this[circleSize] = 1.5f
+        this[sideCloudsOffset] = 1f
+    }
+
+    val duration = 1000
+    transition(fromState = CloudState.CLOUD, toState = CloudState.MERGED) {
+        circleSize using tween(durationMillis = duration)
+        sideCloudsOffset using tween(durationMillis = duration)
+    }
+    transition(fromState = CloudState.MERGED, toState = CloudState.CLOUD) {
+        circleSize using tween(durationMillis = duration)
+        sideCloudsOffset using tween(durationMillis = duration)
+    }
+}
 
 @Preview
 @Composable

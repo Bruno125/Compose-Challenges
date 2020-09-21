@@ -24,8 +24,8 @@ class BodyAnimationState {
 
         val newState = when(ui) {
             is BackupUi.RequestBackup -> BodyState.LAST_BACKUP
-            is BackupUi.BackupInProgress -> BodyState.UPLOADING
-            is BackupUi.BackupCompleted -> BodyState.COMPLETED
+            is BackupUi.BackupInProgress,
+            is BackupUi.BackupCompleted-> BodyState.UPLOADING
         }
         if(newState != current) {
             animatingTo = newState
@@ -107,11 +107,15 @@ fun UploadingHint(modifier: Modifier, progress: Int, transitionState: Transition
 private val lastBackupAlpha = FloatPropKey()
 private val lastBackupHintOffset = IntPropKey()
 private val lastBackupDateOffset = IntPropKey()
+
 private val uploadingAlpha = FloatPropKey()
 private val uploadingOffset = IntPropKey()
 
+private val successAlpha = FloatPropKey()
+private val successOffset = IntPropKey()
+
 enum class BodyState {
-    LAST_BACKUP, UPLOADING, COMPLETED
+    LAST_BACKUP, UPLOADING
 }
 
 private val bodyTransition = transitionDefinition<BodyState> {
@@ -121,6 +125,8 @@ private val bodyTransition = transitionDefinition<BodyState> {
         this[lastBackupDateOffset] = 0
         this[uploadingAlpha] = 0f
         this[uploadingOffset] = 30
+        this[successAlpha] = 0f
+        this[successOffset] = 0
     }
     state(BodyState.UPLOADING) {
         this[lastBackupAlpha] = 0f
@@ -128,6 +134,8 @@ private val bodyTransition = transitionDefinition<BodyState> {
         this[lastBackupDateOffset] = 40
         this[uploadingAlpha] = 1f
         this[uploadingOffset] = 0
+        this[successAlpha] = 0f
+        this[successOffset] = 0
     }
 
     val duration = AnimationConstants.DefaultDurationMillis
