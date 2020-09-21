@@ -15,7 +15,7 @@ class BackupActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(BackupViewModel::class.java)
         setContent {
             ComposeChallengesTheme {
-                RequestBackupScreen(viewModel)
+                BackupScreen(viewModel)
             }
         }
     }

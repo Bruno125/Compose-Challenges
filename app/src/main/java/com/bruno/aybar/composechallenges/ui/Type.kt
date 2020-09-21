@@ -1,25 +1,18 @@
 package com.bruno.aybar.composechallenges.ui
 
-import androidx.compose.animation.animatedFloat
-import androidx.compose.animation.core.AnimationConstants
-import androidx.compose.animation.core.TweenSpec
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.Surface
+import androidx.compose.material.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawShadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.ui.tooling.preview.Preview
-import com.bruno.aybar.composechallenges.utils.animationSequence
 
 // Set of Material typography styles to start with
 val typography = Typography(

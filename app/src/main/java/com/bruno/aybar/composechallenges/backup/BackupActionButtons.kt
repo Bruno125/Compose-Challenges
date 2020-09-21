@@ -57,7 +57,7 @@ class BottomActionButtonState {
 
 
 @Composable
-fun BottomActionButtons(
+fun BackupActionButtons(
     ui: BackupUi,
     onBackup: ()->Unit,
     onCancel: ()->Unit,
