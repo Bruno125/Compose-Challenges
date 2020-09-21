@@ -28,7 +28,7 @@ enum class CloudState {
 }
 
 private val cloudColor = Color.White
-private const val expandedSize = 150f
+private const val expandedSize = 120f
 
 private val circleSize = FloatPropKey()
 private val sideCloudsOffset = FloatPropKey()

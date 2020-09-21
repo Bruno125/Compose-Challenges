@@ -53,14 +53,13 @@ fun RequestBackupScreen(viewModel: BackupViewModel) {
                         .height(80.dp)
                         .fillMaxWidth(),
                     onBackup = { viewModel.onBackup() },
-                    onCancel = { viewModel.onCancel() },
-                    onOk = {  }
+                    onCancel = { viewModel.onCancel() }
                 )
             }
             BackupCompleted(
                 ui = state,
                 modifier = Modifier.fillMaxSize().zIndex(3f),
-                onOk = { viewModel.onCancel() }
+                onOk = { viewModel.onOk() }
             )
         }
     }

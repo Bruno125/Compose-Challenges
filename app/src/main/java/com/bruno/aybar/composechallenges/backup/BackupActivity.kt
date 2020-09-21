@@ -8,10 +8,11 @@ import com.bruno.aybar.composechallenges.ui.ComposeChallengesTheme
 
 class BackupActivity : AppCompatActivity() {
 
-    val viewModel = ViewModelProvider(this).get(BackupViewModel::class.java)
+    lateinit var viewModel: BackupViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this).get(BackupViewModel::class.java)
         setContent {
             ComposeChallengesTheme {
                 RequestBackupScreen(viewModel)

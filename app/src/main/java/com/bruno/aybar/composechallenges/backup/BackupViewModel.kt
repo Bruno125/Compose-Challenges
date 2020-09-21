@@ -32,6 +32,10 @@ class BackupViewModel : ViewModel() {
         }
     }
 
+    fun onOk() {
+        onCancel() // for now just do the same as cancel, rollback everything
+    }
+
     private suspend fun startDownloading() {
         progress = 0
         _state.postValue(BackupUi.BackupInProgress(progress))

@@ -61,7 +61,6 @@ fun BottomActionButtons(
     ui: BackupUi,
     onBackup: ()->Unit,
     onCancel: ()->Unit,
-    onOk: ()->Unit,
     modifier: Modifier
 ) {
     val state: BottomActionButtonState = remember { BottomActionButtonState() }
@@ -121,19 +120,6 @@ private fun CancelButton(onClick: ()->Unit, modifier: Modifier, transition: Tran
             .preferredHeight(buttonHeight),
     ) {
         Text(text = "Cancel")
-    }
-}
-
-@Composable
-private fun OkButton(onClick: ()->Unit, modifier: Modifier, transition: TransitionState) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier
-            .drawOpacity(transition[cancelButtonAlpha])
-            .preferredWidth(transition[cancelButtonWidth].dp)
-            .preferredHeight(buttonHeight),
-    ) {
-        Text(text = "Ok")
     }
 }
 

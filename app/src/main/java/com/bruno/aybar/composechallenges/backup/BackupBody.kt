@@ -75,8 +75,6 @@ fun Body(state: BackupUi, modifier: Modifier) {
 
 @Composable
 fun LastBackup(modifier: Modifier, date: String, transitionState: TransitionState) {
-//    if(transitionState[lastBackupAlpha] == 0f) return
-
     Column(modifier.drawOpacity(transitionState[lastBackupAlpha]),
         verticalArrangement = Arrangement.Center,
         horizontalGravity = Alignment.CenterHorizontally
@@ -91,8 +89,6 @@ fun LastBackup(modifier: Modifier, date: String, transitionState: TransitionStat
 
 @Composable
 fun UploadingHint(modifier: Modifier, progress: Int, transitionState: TransitionState) {
-//    if(transitionState[uploadingAlpha] == 0f) return
-
     Column(modifier.drawOpacity(transitionState[uploadingAlpha]),
         verticalArrangement = Arrangement.Center,
         horizontalGravity = Alignment.CenterHorizontally
