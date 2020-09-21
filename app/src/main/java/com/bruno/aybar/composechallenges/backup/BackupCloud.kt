@@ -24,7 +24,7 @@ import com.bruno.aybar.composechallenges.ui.purple3
 import kotlin.random.Random
 
 enum class CloudState {
-    CLOUD, MERGED, EXPANDING
+    CLOUD, MERGED, COVERING
 }
 
 private val cloudColor = Color.White
@@ -32,6 +32,7 @@ private const val expandedSize = 150f
 
 private val circleSize = FloatPropKey()
 private val sideCloudsOffset = FloatPropKey()
+private val exitBubblesProgress = FloatPropKey()
 
 class AnimatedCloudState {
     var current by mutableStateOf(CloudState.CLOUD)
@@ -45,7 +46,8 @@ class AnimatedCloudState {
         updateProgress(ui)
         val newState = when(ui) {
             is BackupUi.RequestBackup -> CloudState.CLOUD
-            else -> CloudState.MERGED
+            is BackupUi.BackupInProgress -> CloudState.MERGED
+            is BackupUi.BackupCompleted -> CloudState.COVERING
         }
         if(newState != current) {
             animatingTo = newState
@@ -100,9 +102,10 @@ fun BackupCloud(ui: BackupUi, modifier: Modifier) {
 
         if(cloudState.progress != 0f) {
             drawBubbles(
+                baseline = center.y + baseRadius * transition[circleSize].coerceAtMost(1.5f),
                 mainCircleCenter = Offset(center.x, verticalCenter),
                 mainCircleSize = actualRadius,
-                progress = cloudState.progress
+                progress = cloudState.progress + transition[exitBubblesProgress]
             )
         }
     }
@@ -145,12 +148,12 @@ private fun DrawScope.drawSideClouds(
 }
 
 private fun DrawScope.drawBubbles(
+    baseline: Float,
     mainCircleCenter: Offset,
     mainCircleSize: Float,
     progress: Float
 ) {
-    val circleBottom = mainCircleCenter.y + mainCircleSize
-    val relativeProgress = progress * 100 / 2
+    val relativeProgress = progress * 100 / 1.5f
 
     clipPath(Path().apply {
         addRoundRect(
@@ -158,7 +161,7 @@ private fun DrawScope.drawBubbles(
                 left = mainCircleCenter.x - mainCircleSize,
                 right = mainCircleCenter.x + mainCircleSize,
                 top = mainCircleCenter.y - mainCircleSize,
-                bottom = circleBottom,
+                bottom = mainCircleCenter.y + mainCircleSize,
                 radius = Radius(mainCircleSize, mainCircleSize)
             )
         )
@@ -166,24 +169,26 @@ private fun DrawScope.drawBubbles(
 
         bubbles.forEach {
 
-            val verticalPosition = circleBottom +
+            val verticalPosition = baseline +
                 it.size +
                 it.initialPosition -
                 relativeProgress * it.verticalSpeed
 
-            val isOutSide = verticalPosition > circleBottom
+            val isOutSide = verticalPosition > baseline
             val horizontalOffset = if(isOutSide) 0f else {
                 it.direction * it.horizontalSpeed * (progress) * relativeProgress
             }
-
-            drawCircle(
-                color = it.color,
-                radius = it.size,
-                center = Offset(
-                    x = mainCircleCenter.x + horizontalOffset,
-                    y = verticalPosition
+            if(!isOutSide) {
+                drawCircle(
+                    color = it.color,
+                    radius = it.size,
+                    center = Offset(
+                        x = mainCircleCenter.x + horizontalOffset,
+                        y = verticalPosition
+                    )
                 )
-            )
+            }
+
         }
 
     }
@@ -230,10 +235,17 @@ private val cloudAnimation = transitionDefinition<CloudState> {
     state(CloudState.CLOUD) {
         this[circleSize] = 1f
         this[sideCloudsOffset] = 0f
+        this[exitBubblesProgress] = 0f
     }
     state(CloudState.MERGED) {
         this[circleSize] = 1.5f
         this[sideCloudsOffset] = 1f
+        this[exitBubblesProgress] = 0f
+    }
+    state(CloudState.COVERING) {
+        this[circleSize] = 10f
+        this[sideCloudsOffset] = 1f
+        this[exitBubblesProgress] = 0.8f
     }
 
     val duration = 1000
@@ -244,6 +256,16 @@ private val cloudAnimation = transitionDefinition<CloudState> {
     transition(fromState = CloudState.MERGED, toState = CloudState.CLOUD) {
         circleSize using tween(durationMillis = duration)
         sideCloudsOffset using tween(durationMillis = duration)
+    }
+    transition(fromState = CloudState.MERGED, toState = CloudState.COVERING) {
+        circleSize using tween(delayMillis = 300,durationMillis = duration)
+        sideCloudsOffset using tween(delayMillis = 300)
+        exitBubblesProgress using tween(1500)
+    }
+    transition(fromState = CloudState.COVERING, toState = CloudState.MERGED) {
+        circleSize using tween(durationMillis = duration)
+        sideCloudsOffset using tween(durationMillis = duration)
+        exitBubblesProgress using tween(delayMillis = duration)
     }
 }
 

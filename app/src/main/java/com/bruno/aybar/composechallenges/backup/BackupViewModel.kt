@@ -37,7 +37,7 @@ class BackupViewModel : ViewModel() {
         _state.postValue(BackupUi.BackupInProgress(progress))
         delay(1000)
         while(progress < 100) {
-            delay(Random.nextLong(50, 80))
+            delay(Random.nextLong(20, 40))
             progress += 1
             _state.postValue(BackupUi.BackupInProgress(progress))
         }
