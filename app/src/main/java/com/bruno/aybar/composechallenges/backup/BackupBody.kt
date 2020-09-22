@@ -1,7 +1,6 @@
 package com.bruno.aybar.composechallenges.backup
 
 import androidx.compose.animation.core.*
-import androidx.compose.animation.transition
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -9,31 +8,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawOpacity
 import androidx.compose.ui.unit.dp
+import com.bruno.aybar.composechallenges.common.AnimationStateHolder
+import com.bruno.aybar.composechallenges.common.transition
 import com.bruno.aybar.composechallenges.ui.typography
 
 
-class BodyAnimationState {
-    var current by mutableStateOf(BodyState.LAST_BACKUP); private set
-    var animatingTo by mutableStateOf(BodyState.LAST_BACKUP); private set
+class BodyAnimationState: AnimationStateHolder<BodyState>(BodyState.LAST_BACKUP) {
 
     var cachedBackupDate: String = ""; private set
     var cachedProgress: Int = 0; private set
 
     fun update(ui: BackupUi) {
         updateCachedValues(ui)
-
-        val newState = when(ui) {
+        animateTo(newState = when(ui) {
             is BackupUi.RequestBackup -> BodyState.LAST_BACKUP
             is BackupUi.BackupInProgress,
             is BackupUi.BackupCompleted-> BodyState.UPLOADING
-        }
-        if(newState != current) {
-            animatingTo = newState
-        }
-    }
-
-    fun onAnimationFinished() {
-        current = animatingTo
+        })
     }
 
     private fun updateCachedValues(ui: BackupUi) {
@@ -54,9 +45,7 @@ fun Body(state: BackupUi, modifier: Modifier) {
 
     val transition = transition(
         definition = bodyTransition,
-        initState = bodyState.current,
-        toState = bodyState.animatingTo,
-        onStateChangeFinished = { bodyState.onAnimationFinished() }
+        stateHolder = bodyState
     )
 
     Stack(modifier) {

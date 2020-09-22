@@ -3,7 +3,6 @@
 package com.bruno.aybar.composechallenges.backup
 
 import androidx.compose.animation.core.*
-import androidx.compose.animation.transition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
@@ -19,6 +18,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
+import com.bruno.aybar.composechallenges.common.AnimationStateHolder
+import com.bruno.aybar.composechallenges.common.transition
 import com.bruno.aybar.composechallenges.ui.buttonHeight
 import com.bruno.aybar.composechallenges.ui.typography
 import kotlin.math.tan
@@ -32,24 +33,15 @@ enum class BackupCompletedState {
     HIDDEN, VISIBLE
 }
 
-class AnimatedCompletedState {
-    var current by mutableStateOf(BackupCompletedState.HIDDEN)
-        private set
-    var animatingTo by mutableStateOf(BackupCompletedState.HIDDEN)
-        private set
+class AnimatedCompletedState: AnimationStateHolder<BackupCompletedState>(
+    initialState = BackupCompletedState.HIDDEN
+) {
 
     fun update(ui: BackupUi) {
-        val newState = when(ui) {
+        animateTo(newState = when(ui) {
             is BackupUi.BackupCompleted -> BackupCompletedState.VISIBLE
             else -> BackupCompletedState.HIDDEN
-        }
-        if(newState != current) {
-            animatingTo = newState
-        }
-    }
-
-    fun onAnimationCompleted() {
-        current = animatingTo
+        })
     }
 
 }
@@ -60,9 +52,7 @@ fun BackupCompleted(ui: BackupUi, modifier: Modifier, onOk: ()->Unit) {
 
     val transition = transition(
         definition = completedAnimation,
-        initState = state.current,
-        toState = state.animatingTo,
-        onStateChangeFinished = { state.onAnimationCompleted() }
+        stateHolder = state
     )
 
     state.update(ui)

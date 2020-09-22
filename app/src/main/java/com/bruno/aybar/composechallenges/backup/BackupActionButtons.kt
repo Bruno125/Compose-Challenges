@@ -2,7 +2,6 @@ package com.bruno.aybar.composechallenges.backup
 
 import androidx.compose.animation.core.*
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
-import androidx.compose.animation.transition
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.RowScope.gravity
@@ -15,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawOpacity
 import androidx.compose.ui.unit.dp
+import com.bruno.aybar.composechallenges.common.AnimationStateHolder
+import com.bruno.aybar.composechallenges.common.transition
 import com.bruno.aybar.composechallenges.ui.buttonHeight
 
 
@@ -29,28 +30,15 @@ enum class ButtonsState {
     Cancel
 }
 
-class BottomActionButtonState {
-    private val initialState = ButtonsState.CreateBackup
-
-    var current by mutableStateOf(initialState)
-    private set
-    var animToState by mutableStateOf(initialState)
-    private set
-    var animFromState = initialState
+class BackupActionButtonState: AnimationStateHolder<ButtonsState>(
+    initialState = ButtonsState.CreateBackup
+){
 
     fun update(ui: BackupUi) {
-        val newState = when(ui) {
+        animateTo(newState = when(ui) {
             is BackupUi.RequestBackup -> ButtonsState.CreateBackup
             else -> ButtonsState.Cancel
-        }
-        if(newState != current) {
-            current = newState
-            animToState = newState
-        }
-    }
-
-    fun onAnimationFinished() {
-        animFromState = animToState
+        })
     }
 
 }
@@ -63,15 +51,13 @@ fun BackupActionButtons(
     onCancel: ()->Unit,
     modifier: Modifier
 ) {
-    val state: BottomActionButtonState = remember { BottomActionButtonState() }
+    val animationState = remember { BackupActionButtonState() }
 
-    state.update(ui)
+    animationState.update(ui)
 
     val transition = transition(
         definition = AnimateButtonsTransition,
-        initState = state.animFromState,
-        toState = state.animToState,
-        onStateChangeFinished = { state.onAnimationFinished() }
+        stateHolder = animationState
     )
 
     Stack(modifier) {

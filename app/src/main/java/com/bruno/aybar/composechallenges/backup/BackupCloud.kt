@@ -1,7 +1,6 @@
 package com.bruno.aybar.composechallenges.backup
 
 import androidx.compose.animation.core.*
-import androidx.compose.animation.transition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -17,6 +16,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.unit.dp
 import androidx.ui.tooling.preview.Preview
+import com.bruno.aybar.composechallenges.common.AnimationStateHolder
+import com.bruno.aybar.composechallenges.common.transition
 import com.bruno.aybar.composechallenges.ui.ComposeChallengesTheme
 import com.bruno.aybar.composechallenges.ui.purple1
 import com.bruno.aybar.composechallenges.ui.purple2
@@ -34,28 +35,17 @@ private val circleSize = FloatPropKey()
 private val sideCloudsOffset = FloatPropKey()
 private val exitBubblesProgress = FloatPropKey()
 
-class AnimatedCloudState {
-    var current by mutableStateOf(CloudState.CLOUD)
-        private set
-    var animatingTo by mutableStateOf(CloudState.CLOUD)
-        private set
+class AnimatedCloudState: AnimationStateHolder<CloudState>(initialState = CloudState.CLOUD) {
     var progress = 0f
         private set
 
     fun update(ui :BackupUi) {
         updateProgress(ui)
-        val newState = when(ui) {
+        animateTo(newState = when(ui) {
             is BackupUi.RequestBackup -> CloudState.CLOUD
             is BackupUi.BackupInProgress -> CloudState.MERGED
             is BackupUi.BackupCompleted -> CloudState.COVERING
-        }
-        if(newState != current) {
-            animatingTo = newState
-        }
-    }
-
-    fun onAnimationCompleted() {
-        current = animatingTo
+        })
     }
 
     private fun updateProgress(ui: BackupUi) {
@@ -74,9 +64,7 @@ fun BackupCloud(ui: BackupUi, modifier: Modifier) {
 
     val transition = transition(
         definition = cloudAnimation,
-        initState = cloudState.current,
-        toState = cloudState.animatingTo,
-        onStateChangeFinished = { cloudState.onAnimationCompleted() }
+        stateHolder = cloudState
     )
 
     Canvas(modifier) {
