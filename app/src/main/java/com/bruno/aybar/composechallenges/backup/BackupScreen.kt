@@ -12,11 +12,6 @@ import androidx.compose.ui.zIndex
 import androidx.ui.tooling.preview.Preview
 import com.bruno.aybar.composechallenges.ui.ComposeChallengesTheme
 
-/**
- * Backup screen
- *
- * @sample com.bruno.aybar.composechallenges.backup.Preview
- */
 @Composable
 fun BackupScreen(viewModel: BackupViewModel) {
     val state = viewModel.state.observeAsState().value ?: return
