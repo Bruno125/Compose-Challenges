@@ -22,6 +22,7 @@ class FlappyBirdGame(
     private var initialY = 0f
     private var currentBias = 0f
     private var currentRotation = 0f
+    private var currentScore = 0
 
     private var boundsWidth = 0f
     private var boundsHeight = 0f
@@ -64,6 +65,7 @@ class FlappyBirdGame(
         this.time = 0f
         this.initialY = CENTER
         this.currentRotation = GOING_UP
+        this.currentScore = 0
 
         this.bird.centerX = boundsWidth / 2
         // This logic could be much more complicated
@@ -99,8 +101,13 @@ class FlappyBirdGame(
 
     private fun moveObstacles() {
         val lastX = obstacles.maxOf { it.centerX }
+        val middleScreen = boundsWidth / 2
         obstacles.forEach {
-            it.centerX -= OBSTACLE_WIDTH / 10f
+            val newCenterX = it.centerX - OBSTACLE_WIDTH / 10f
+            if(it.centerX > middleScreen && newCenterX < middleScreen) {
+                currentScore += 1
+            }
+            it.centerX = newCenterX
             val isOutside = (it.centerX + it.width / 2f) < 0f
             if(isOutside) {
                 it.centerX = lastX + OBSTACLE_WIDTH * 1.5f
@@ -136,7 +143,8 @@ class FlappyBirdGame(
                     leftMargin = it.centerX - it.width / 2f,
                     orientation = if(it.centerY > boundsHeight / 2) ObstaclePosition.Down else ObstaclePosition.Up
                 )
-            }
+            },
+        score = currentScore
     )
 
     private fun Float.asAbsoluteY(): Float {

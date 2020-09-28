@@ -6,7 +6,8 @@ sealed class FlappyGameUi {
 
     data class Playing(
         val bird: Bird,
-        val obstacles: List<Obstacle> = emptyList()
+        val obstacles: List<Obstacle> = emptyList(),
+        val score: Int
     ): FlappyGameUi()
 
     data class Finished(val finalScore: Int): FlappyGameUi()
@@ -27,3 +28,8 @@ data class Obstacle(
 )
 
 enum class ObstaclePosition { Up, Down }
+
+data class Scoreboard(
+    val current: Int,
+    val best: Int
+)

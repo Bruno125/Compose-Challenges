@@ -43,7 +43,7 @@ fun FlappyBirdScreen() {
                 .weight(4f)
             )
 
-            Scoreboard(modifier = Modifier
+            Scoreboard(gameViewModel, modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
             )
@@ -163,7 +163,7 @@ private fun ObstacleBody(borderMode: ObstacleBorderMode, modifier: Modifier) {
 }
 
 @Composable
-fun Scoreboard(modifier: Modifier) {
+fun Scoreboard(gameViewModel: FlappyBirdViewModel, modifier: Modifier) {
     Row(
         modifier = modifier
             .background(MaterialTheme.colors.background)
@@ -171,13 +171,15 @@ fun Scoreboard(modifier: Modifier) {
         verticalGravity = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
+        val scoreboard = gameViewModel.scoreBoard.observeAsState().value ?: Scoreboard(0,0)
+
         Column(horizontalGravity = Alignment.CenterHorizontally) {
             Text("SCORE", style = MaterialTheme.typography.subtitle1)
-            Text("2", style = MaterialTheme.typography.body1)
+            Text("${scoreboard.current}", style = MaterialTheme.typography.body1)
         }
         Column(horizontalGravity = Alignment.CenterHorizontally) {
             Text("BEST", style = MaterialTheme.typography.subtitle1)
-            Text("0", style = MaterialTheme.typography.body1)
+            Text("${scoreboard.best}", style = MaterialTheme.typography.body1)
         }
     }
 }
