@@ -3,9 +3,14 @@ package com.bruno.aybar.composechallenges.flappy
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlin.random.Random
 
 private const val GOING_UP = -45f
 private const val FACING_DOWN = 90f
+private const val CENTER = 0f
+private const val OBSTACLE_WIDTH = 80f
+private const val MAX_OBSTACLE_HEIGHT = 200
+private const val MIN_OBSTACLE_HEIGHT = 80
 
 class FlappyBirdGame(
     private val birdSize: Float = 60f,
@@ -21,8 +26,8 @@ class FlappyBirdGame(
     private var boundsWidth = 0f
     private var boundsHeight = 0f
 
-    private val bird = Object(width = birdSize, height = birdSize, centerX = 0.5f, centerY = 0f)
-    private val obstacles = listOf<Object>()
+    private val bird = Object(width = birdSize, height = birdSize, centerX = 0f, centerY = 0f)
+    private var obstacles = listOf<Object>()
 
     fun setBounds(widthDp: Float, heightDp: Float) {
         boundsWidth = widthDp
@@ -30,14 +35,13 @@ class FlappyBirdGame(
     }
 
     suspend fun start(): Flow<FlappyGameUi> {
-        jump(initialY = 0f)
+        initGameValues()
         return flow {
             if(boundsHaveNotBeenSet()) {
                 emit(FlappyGameUi.NotStarted)
                 return@flow
             }
             while(true) {
-                delay(frameDelayMillis)
                 move()
                 if(thereAreAnyCollisions() || birdIsOutOfBounds()) {
                     emit(FlappyGameUi.Finished(1))
@@ -45,19 +49,37 @@ class FlappyBirdGame(
                 } else {
                     emit(buildCurrentState())
                 }
+                delay(frameDelayMillis)
             }
         }
     }
 
-    fun jump(initialY: Float = currentBias) {
+    fun jump() {
         this.time = 0f
-        this.initialY = initialY
+        this.initialY = currentBias
         this.currentRotation = GOING_UP
+    }
+
+    private fun initGameValues() {
+        this.time = 0f
+        this.initialY = CENTER
+        this.currentRotation = GOING_UP
+
+        // This logic could be much more complicated
+        this.obstacles = (0..6).map {
+            val width = OBSTACLE_WIDTH
+            val height = Random.nextInt(MIN_OBSTACLE_HEIGHT/10, MAX_OBSTACLE_HEIGHT/10) * 10f
+            val up = Random.nextBoolean()
+            val centerX = boundsWidth + OBSTACLE_WIDTH + OBSTACLE_WIDTH * 1.5f * it
+            val centerY = if(up) height / 2f else boundsHeight - height / 2f
+            Object(width, height, centerX, centerY)
+        }
     }
 
     private fun move() {
         time += 0.05f
         moveBird()
+        moveObstacles()
     }
 
     private fun moveBird() {
@@ -72,6 +94,17 @@ class FlappyBirdGame(
         }
         currentBias = newBias
         bird.centerY = newBias.asAbsoluteY()
+    }
+
+    private fun moveObstacles() {
+        val lastX = obstacles.maxOf { it.centerX }
+        obstacles.forEach {
+            it.centerX -= OBSTACLE_WIDTH / 10f
+            val isOutside = (it.centerX + it.width / 2f) < 0f
+            if(isOutside) {
+                it.centerX = lastX + OBSTACLE_WIDTH * 1.5f
+            }
+        }
     }
 
     private fun thereAreAnyCollisions(): Boolean {
@@ -92,29 +125,26 @@ class FlappyBirdGame(
             verticalBias = currentBias,
             rotation = currentRotation,
         ),
-        obstacles = emptyList()
+        obstacles = obstacles
+            .filter { it.isVisible() }
+            .map {
+                Obstacle(
+                    widthDp = it.width,
+                    heightDp = it.height,
+                    topMargin = it.centerY - it.height / 2f,
+                    leftMargin = it.centerX - it.width / 2f,
+                    orientation = if(it.centerY > boundsHeight / 2) ObstaclePosition.Down else ObstaclePosition.Up
+                )
+            }
     )
-
-    /**
-     * Evaluates current centerY position, and returns a vertical bias (value between -1 and 1),
-     * relative to the current bounds.
-     */
-    private fun Object.getVerticalBias(): Float {
-        return (2 * centerY / boundsHeight) - 1
-    }
-
-    /**
-     * Evaluates current centerX position, and returns a vertical bias (value between -1 and 1),
-     * relative to the current bounds.
-     */
-    private fun Object.getHorizontalBias(): Float {
-        return (2 * centerX / boundsWidth) - 1
-    }
 
     private fun Float.asAbsoluteY(): Float {
         return boundsHeight * (this + 1) / 2
     }
 
+    private fun Object.isVisible(): Boolean {
+        return (centerX + width / 2f) > 0f
+    }
 }
 
 private data class Object(

@@ -19,7 +19,11 @@ data class Bird(
 )
 
 data class Obstacle(
-    val widthDp: Int,
-    val heightDp: Int,
-    val verticalBias: Float
+    val widthDp: Float,
+    val heightDp: Float,
+    val topMargin: Float,
+    val leftMargin: Float,
+    val orientation: ObstaclePosition
 )
+
+enum class ObstaclePosition { Up, Down }

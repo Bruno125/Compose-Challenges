@@ -29,7 +29,7 @@ class FlappyBirdViewModel: ViewModel() {
     }
 
     private fun startGame() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             hasStarted = true
             game.start().collectLatest {
                 _state.postValue(it)
