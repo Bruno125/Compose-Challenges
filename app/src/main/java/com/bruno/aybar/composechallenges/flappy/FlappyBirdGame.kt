@@ -13,7 +13,7 @@ private const val MAX_OBSTACLE_HEIGHT = 200
 private const val MIN_OBSTACLE_HEIGHT = 80
 
 class FlappyBirdGame(
-    private val birdSize: Float = 60f,
+    private val birdSize: Float = 48f,
     private val birdJumpingVelocity: Float = 2.8f,
     private val frameDelayMillis: Long = 60
 ) {
@@ -42,7 +42,6 @@ class FlappyBirdGame(
                 return@flow
             }
             while(true) {
-                move()
                 if(thereAreAnyCollisions() || birdIsOutOfBounds()) {
                     emit(FlappyGameUi.Finished(1))
                     break
@@ -50,6 +49,7 @@ class FlappyBirdGame(
                     emit(buildCurrentState())
                 }
                 delay(frameDelayMillis)
+                move()
             }
         }
     }
@@ -65,6 +65,7 @@ class FlappyBirdGame(
         this.initialY = CENTER
         this.currentRotation = GOING_UP
 
+        this.bird.centerX = boundsWidth / 2
         // This logic could be much more complicated
         this.obstacles = (0..6).map {
             val width = OBSTACLE_WIDTH
@@ -155,7 +156,17 @@ private data class Object(
 ) {
 
     infix fun collidesWith(other: Object): Boolean {
-        return false // TODO
+        val tolerance = 20
+        if (right + tolerance <= other.left || other.right - tolerance <= left)
+            return false
+        if (bottom - tolerance <= other.top || other.bottom + tolerance <= top)
+            return false
+        return true
     }
+
+    val left get() = centerX - width / 2f
+    val right get() = centerX + width / 2f
+    val top get() = centerY - height / 2f
+    val bottom get() = centerY + height / 2f
 
 }

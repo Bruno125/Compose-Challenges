@@ -104,7 +104,7 @@ private fun Bird(state: FlappyGameUi, modifier: Modifier) {
     Image(
         asset = imageResource(id = R.drawable.bird),
         modifier = modifier
-            .size(60.dp)
+            .size(48.dp)
             .drawLayer(rotationZ = birdRotation)
     )
 }
