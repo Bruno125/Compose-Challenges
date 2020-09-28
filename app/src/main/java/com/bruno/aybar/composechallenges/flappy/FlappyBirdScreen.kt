@@ -79,6 +79,12 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
                     )
                 )
             }
+
+            if(currentState !is FlappyGameUi.Playing) {
+                Text("T A P  T O  P L A Y", Modifier.gravity(
+                    AbsoluteAlignment(-0.3f, 0f)
+                ))
+            }
         }
     }
 }
