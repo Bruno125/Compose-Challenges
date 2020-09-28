@@ -61,7 +61,7 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
         onActive {
             viewModel.onGameBoundsSet(maxWidth.value, maxHeight.value)
         }
-        Stack(Modifier.clickable(onClick = viewModel::onTap)) {
+        Stack(Modifier.clickable(onClick = viewModel::onTap, indication = null)) {
             val currentState = state.value
             val birdAlignment = currentState.getBirdAlignment()
             Bird(currentState, Modifier.gravity(birdAlignment))
