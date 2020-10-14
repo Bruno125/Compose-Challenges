@@ -57,3 +57,39 @@ fun <T> transition(
         }
     )
 }
+
+@Composable
+fun <T> transition(
+    definition: TransitionDefinition<T>,
+    stateHolder: AnimationSequenceStateHolder<T>,
+    clock: AnimationClockObservable = AnimationClockAmbient.current,
+    label: String? = null
+): TransitionState {
+    return androidx.compose.animation.transition(
+        definition = definition,
+        initState = stateHolder.current,
+        toState = stateHolder.animatingTo,
+        clock = clock,
+        label = label,
+        onStateChangeFinished = {
+            stateHolder.onAnimationFinished()
+            stateHolder.next()
+        }
+    )
+}
+
+class AnimationSequenceStateHolder<T>(private val sequence: List<T>): AnimationStateHolder<T>(
+    initialState = sequence.firstOrNull() ?: throw RuntimeException("Sequence cannot be empty")
+) {
+
+    private var currentState = 0
+
+    fun start() { next() }
+
+    fun next() {
+        if(currentState + 1 < sequence.size) {
+            animateTo(sequence[++currentState])
+        }
+    }
+
+}
