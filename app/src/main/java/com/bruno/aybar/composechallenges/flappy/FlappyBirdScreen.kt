@@ -64,7 +64,7 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
         Stack(Modifier.clickable(onClick = viewModel::onTap, indication = null)) {
             val currentState = state.value
             val birdAlignment = currentState.getBirdAlignment()
-            Bird(currentState, Modifier.gravity(birdAlignment))
+            Bird(currentState, Modifier.align(birdAlignment))
 
             currentState.getObstacles().forEach { obstacle ->
                 DrawObstacle(Modifier
@@ -81,7 +81,7 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
             }
 
             if(currentState !is FlappyGameUi.Playing) {
-                Text("T A P  T O  P L A Y", Modifier.gravity(
+                Text("T A P  T O  P L A Y", Modifier.align(
                     AbsoluteAlignment(-0.3f, 0f)
                 ))
             }
@@ -174,16 +174,16 @@ fun Scoreboard(gameViewModel: FlappyBirdViewModel, modifier: Modifier) {
         modifier = modifier
             .background(MaterialTheme.colors.background)
             .padding(vertical = 24.dp),
-        verticalGravity = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         val scoreboard = gameViewModel.scoreBoard.observeAsState().value ?: Scoreboard(0,0)
 
-        Column(horizontalGravity = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("SCORE", style = MaterialTheme.typography.subtitle1)
             Text("${scoreboard.current}", style = MaterialTheme.typography.body1)
         }
-        Column(horizontalGravity = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("BEST", style = MaterialTheme.typography.subtitle1)
             Text("${scoreboard.best}", style = MaterialTheme.typography.body1)
         }

@@ -50,12 +50,12 @@ fun Body(state: BackupUi, modifier: Modifier) {
 
     Stack(modifier) {
         LastBackup(
-            modifier = Modifier.gravity(Alignment.Center),
+            modifier = Modifier.align(Alignment.Center),
             date = bodyState.cachedBackupDate,
             transitionState = transition)
 
         UploadingHint(
-            modifier = Modifier.gravity(Alignment.Center),
+            modifier = Modifier.align(Alignment.Center),
             progress = bodyState.cachedProgress,
             transitionState = transition
         )
@@ -66,7 +66,7 @@ fun Body(state: BackupUi, modifier: Modifier) {
 fun LastBackup(modifier: Modifier, date: String, transitionState: TransitionState) {
     Column(modifier.drawOpacity(transitionState[lastBackupAlpha]),
         verticalArrangement = Arrangement.Center,
-        horizontalGravity = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("last backup", style = typography.caption)
         Spacer(Modifier.height(transitionState[lastBackupHintOffset].dp))
@@ -80,7 +80,7 @@ fun LastBackup(modifier: Modifier, date: String, transitionState: TransitionStat
 fun UploadingHint(modifier: Modifier, progress: Int, transitionState: TransitionState) {
     Column(modifier.drawOpacity(transitionState[uploadingAlpha]),
         verticalArrangement = Arrangement.Center,
-        horizontalGravity = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.height(transitionState[uploadingOffset].dp))
         Text("uploading file", style = typography.subtitle1)

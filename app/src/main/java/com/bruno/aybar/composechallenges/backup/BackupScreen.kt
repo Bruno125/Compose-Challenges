@@ -27,7 +27,7 @@ fun BackupScreen(viewModel: BackupViewModel) {
                         .fillMaxWidth()
                         .zIndex(2f)
                 )
-                Body(state, Modifier.gravity(Alignment.CenterHorizontally))
+                Body(state, Modifier.align(Alignment.CenterHorizontally))
                 Spacer(Modifier.weight(1f))
                 BackupActionButtons(
                     ui = state,

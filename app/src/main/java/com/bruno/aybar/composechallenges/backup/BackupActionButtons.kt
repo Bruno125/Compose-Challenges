@@ -4,7 +4,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.RowScope.gravity
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
@@ -65,13 +64,13 @@ fun BackupActionButtons(
         BackupButton(
             onClick = onBackup,
             transition = transition,
-            modifier = Modifier.gravity(Alignment.Center)
+            modifier = Modifier.align(Alignment.Center)
         )
 
         CancelButton(
             onClick = onCancel,
             transition = transition,
-            modifier = Modifier.gravity(Alignment.Center)
+            modifier = Modifier.align(Alignment.Center)
         )
 
     }

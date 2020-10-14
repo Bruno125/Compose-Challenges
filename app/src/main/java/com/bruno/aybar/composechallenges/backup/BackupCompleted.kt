@@ -95,7 +95,7 @@ private fun OkButton(modifier: Modifier, onClick: () -> Unit, transition: Transi
 
 @Composable
 private fun CompletedHint(modifier: Modifier, transition: TransitionState) {
-    Column(modifier.height(100.dp) ,horizontalGravity = Alignment.CenterHorizontally) {
+    Column(modifier.height(100.dp) , horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(Modifier.height(transition[topSpacing].dp))
         Text("data has successfully",
             style = typography.subtitle2,
