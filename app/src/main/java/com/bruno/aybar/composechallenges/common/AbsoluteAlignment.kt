@@ -15,8 +15,8 @@ import kotlin.math.roundToInt
  */
 @Immutable
 data class AbsoluteAlignment(
-    private val verticalBias: Float,
-    private val horizontalBias: Float
+    private val verticalBias: Float = 0f,
+    private val horizontalBias: Float = 0f
 ) : Alignment {
     /**
      * Returns the position of a 2D point in a container of a given size, according to this
