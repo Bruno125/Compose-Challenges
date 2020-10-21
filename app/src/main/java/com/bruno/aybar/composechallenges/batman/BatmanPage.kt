@@ -3,10 +3,7 @@ package com.bruno.aybar.composechallenges.batman
 import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Stack
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Typography
@@ -57,7 +54,7 @@ fun BatmanTheme(content: @Composable () -> Unit) {
 fun BatmanPage() {
     Surface(Modifier.fillMaxSize()) {
         WithConstraints {
-            Stack {
+            Box {
                 val animationStateHolder = remember {
                     AnimationSequenceStateHolder(
                         listOf(

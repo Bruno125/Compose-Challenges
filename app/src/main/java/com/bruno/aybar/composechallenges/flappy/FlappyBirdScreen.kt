@@ -2,6 +2,7 @@ package com.bruno.aybar.composechallenges.flappy
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -61,7 +62,7 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
         onActive {
             viewModel.onGameBoundsSet(maxWidth.value, maxHeight.value)
         }
-        Stack(Modifier.clickable(onClick = viewModel::onTap, indication = null)) {
+        Box(Modifier.clickable(onClick = viewModel::onTap, indication = null)) {
             val currentState = state.value
             val birdAlignment = currentState.getBirdAlignment()
             Bird(currentState, Modifier.align(birdAlignment))
@@ -117,7 +118,7 @@ private fun Bird(state: FlappyGameUi, modifier: Modifier) {
 
 @Composable
 fun DrawObstacle(modifier: Modifier) {
-    Stack(modifier) {
+    Box(modifier) {
         ObstacleBody(ObstacleBorderMode.Sides, modifier = Modifier
             .padding(horizontal = 10.dp)
             .fillMaxSize()
