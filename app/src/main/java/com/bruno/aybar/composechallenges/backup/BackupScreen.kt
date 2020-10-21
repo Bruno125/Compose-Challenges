@@ -17,7 +17,7 @@ fun BackupScreen(viewModel: BackupViewModel) {
     val state = viewModel.state.observeAsState().value ?: return
 
     Surface {
-        Stack {
+        Box {
             Column(Modifier.fillMaxSize()) {
                 BackupTitle(state)
                 BackupCloud(

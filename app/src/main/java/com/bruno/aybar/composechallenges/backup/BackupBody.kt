@@ -48,7 +48,7 @@ fun Body(state: BackupUi, modifier: Modifier) {
         stateHolder = bodyState
     )
 
-    Stack(modifier) {
+    Box(modifier) {
         LastBackup(
             modifier = Modifier.align(Alignment.Center),
             date = bodyState.cachedBackupDate,

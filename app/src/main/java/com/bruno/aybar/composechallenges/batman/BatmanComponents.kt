@@ -51,7 +51,7 @@ fun BatmanButton(label: String, iconPosition: BatmanButtonIconPosition) {
         contentPadding = PaddingValues(all = 0.dp),
         modifier = Modifier.size(width = 300.dp, height = 48.dp)
     ) {
-        Stack(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize()) {
             Text(
                 text = label,
                 modifier = Modifier.align(Alignment.Center)

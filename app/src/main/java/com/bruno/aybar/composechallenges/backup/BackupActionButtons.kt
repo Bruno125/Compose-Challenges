@@ -59,7 +59,7 @@ fun BackupActionButtons(
         stateHolder = animationState
     )
 
-    Stack(modifier) {
+    Box(modifier) {
 
         BackupButton(
             onClick = onBackup,
