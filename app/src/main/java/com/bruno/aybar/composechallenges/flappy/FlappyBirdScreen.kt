@@ -14,11 +14,12 @@ import androidx.compose.ui.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.WithConstraints
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
-import androidx.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material.Text
 import com.bruno.aybar.composechallenges.R
-import com.bruno.aybar.composechallenges.common.AbsoluteAlignment
 
 val skyColor = Color(0xFF74B9F5)
 val lightGreen = Color(0xFF75B6E0)
@@ -83,7 +84,7 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
 
             if(currentState !is FlappyGameUi.Playing) {
                 Text("T A P  T O  P L A Y", Modifier.align(
-                    AbsoluteAlignment(-0.3f, 0f)
+                    BiasAlignment(verticalBias = -0.3f, horizontalBias = 0f)
                 ))
             }
         }
@@ -93,7 +94,7 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
 private fun FlappyGameUi.getBirdAlignment() = when(this) {
     is FlappyGameUi.NotStarted -> Alignment.Center
     is FlappyGameUi.Finished -> Alignment.BottomCenter
-    is FlappyGameUi.Playing -> AbsoluteAlignment(bird.verticalBias, 0f)
+    is FlappyGameUi.Playing -> BiasAlignment(verticalBias = bird.verticalBias, horizontalBias = 0f)
 }
 
 private fun FlappyGameUi.getObstacles(): List<Obstacle> = when(this) {
@@ -109,7 +110,7 @@ private fun Bird(state: FlappyGameUi, modifier: Modifier) {
         is FlappyGameUi.Playing -> state.bird.rotation
     }
     Image(
-        asset = imageResource(id = R.drawable.bird),
+        bitmap = imageResource(id = R.drawable.bird),
         modifier = modifier
             .size(48.dp)
             .drawLayer(rotationZ = birdRotation)

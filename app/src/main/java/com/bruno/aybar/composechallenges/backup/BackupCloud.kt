@@ -6,16 +6,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Radius
-import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.unit.dp
-import androidx.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 import com.bruno.aybar.composechallenges.common.AnimationStateHolder
 import com.bruno.aybar.composechallenges.common.transition
 import com.bruno.aybar.composechallenges.ui.ComposeChallengesTheme
@@ -112,7 +109,7 @@ private fun DrawScope.drawSideClouds(
     drawRoundRect(
         color = cloudColor,
         size = Size(rightWidth, rightHeight),
-        radius = Radius(rightRadius),
+        cornerRadius = CornerRadius(rightRadius),
         topLeft = Offset(
             x = center.x - expandedSize - rightHorizontalOffset,
             y = bottom - rightHeight
@@ -126,7 +123,7 @@ private fun DrawScope.drawSideClouds(
     drawRoundRect(
         color = cloudColor,
         size = Size(leftWidth, leftHeight),
-        radius = Radius(leftRadius),
+        cornerRadius = CornerRadius(leftRadius),
         topLeft = Offset(
             x = center.x - leftWidth + leftRadius * 0.5f + leftCloudAnimationOffset,// - leftCircleSize - expandedSize / 2 - leftCloudAnimationOffset,
             y = bottom - leftHeight
@@ -150,7 +147,7 @@ private fun DrawScope.drawBubbles(
                 right = mainCircleCenter.x + mainCircleSize,
                 top = mainCircleCenter.y - mainCircleSize,
                 bottom = mainCircleCenter.y + mainCircleSize,
-                radius = Radius(mainCircleSize, mainCircleSize)
+                cornerRadius = CornerRadius(mainCircleSize, mainCircleSize)
             )
         )
     }) {

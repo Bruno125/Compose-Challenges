@@ -2,16 +2,15 @@ package com.bruno.aybar.composechallenges.backup
 
 import androidx.compose.animation.core.*
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.OutlinedButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawOpacity
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.bruno.aybar.composechallenges.common.AnimationStateHolder
 import com.bruno.aybar.composechallenges.common.transition
@@ -82,9 +81,8 @@ private fun BackupButton(onClick: ()->Unit, modifier: Modifier, transition: Tran
 
     Button(
         onClick = onClick,
-        backgroundColor = MaterialTheme.colors.primary,
         modifier = modifier
-            .drawOpacity(transition[backupButtonAlpha])
+            .alpha(transition[backupButtonAlpha])
             .preferredWidth(240.dp * transition[backupButtonSizeMultiplier])
             .preferredHeight(buttonHeight * transition[backupButtonSizeMultiplier]),
         shape = RoundedCornerShape(10.dp)
@@ -100,7 +98,7 @@ private fun CancelButton(onClick: ()->Unit, modifier: Modifier, transition: Tran
     OutlinedButton(
         onClick = onClick,
         modifier = modifier
-            .drawOpacity(transition[cancelButtonAlpha])
+            .alpha(transition[cancelButtonAlpha])
             .preferredWidth(transition[cancelButtonWidth].dp)
             .preferredHeight(buttonHeight),
     ) {

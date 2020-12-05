@@ -1,12 +1,12 @@
 package com.bruno.aybar.composechallenges.backup
 
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawOpacity
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.bruno.aybar.composechallenges.common.AnimationStateHolder
 import com.bruno.aybar.composechallenges.common.transition
@@ -64,7 +64,7 @@ fun Body(state: BackupUi, modifier: Modifier) {
 
 @Composable
 fun LastBackup(modifier: Modifier, date: String, transitionState: TransitionState) {
-    Column(modifier.drawOpacity(transitionState[lastBackupAlpha]),
+    Column(modifier.alpha(transitionState[lastBackupAlpha]),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -78,7 +78,7 @@ fun LastBackup(modifier: Modifier, date: String, transitionState: TransitionStat
 
 @Composable
 fun UploadingHint(modifier: Modifier, progress: Int, transitionState: TransitionState) {
-    Column(modifier.drawOpacity(transitionState[uploadingAlpha]),
+    Column(modifier.alpha(transitionState[uploadingAlpha]),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
