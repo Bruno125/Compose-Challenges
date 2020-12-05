@@ -1,27 +1,27 @@
 package com.bruno.aybar.composechallenges.batman
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.Text
+import androidx.compose.material.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.drawLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bruno.aybar.composechallenges.R
-import com.bruno.aybar.composechallenges.common.AbsoluteAlignment
 
 
 @Composable
 fun BatmanLogo(modifier: Modifier) {
-    Image(asset = imageResource(id = R.drawable.batman_logo), modifier = modifier)
+    Image(bitmap = imageResource(id = R.drawable.batman_logo), modifier = modifier)
 }
 
 @Composable
@@ -57,16 +57,16 @@ fun BatmanButton(label: String, iconPosition: BatmanButtonIconPosition) {
                 modifier = Modifier.align(Alignment.Center)
             )
             Image(
-                asset = imageResource(id = R.drawable.batman_logo),
+                bitmap = imageResource(id = R.drawable.batman_logo),
                 colorFilter = ColorFilter.tint(Color.Gray.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .size(width = 60.dp, height = 30.dp)
-                    .drawLayer(rotationZ = when(iconPosition) {
+                    .graphicsLayer(rotationZ = when(iconPosition) {
                         BatmanButtonIconPosition.Start -> 30f
                         BatmanButtonIconPosition.End -> -30f
                     })
                     .align(
-                        AbsoluteAlignment(
+                        BiasAlignment(
                         verticalBias = 1.1f,
                         horizontalBias = when(iconPosition) {
                             BatmanButtonIconPosition.Start -> -1.1f
@@ -83,7 +83,7 @@ fun BatmanContent(modifier: Modifier, maxWidth: Dp, batmanSizeProgress: Float) {
     ConstraintLayout(modifier.size(maxWidth)) {
         val (backgroundRef, batmanRef) = createRefs()
         Image(
-            asset = imageResource(id = R.drawable.batman_background),
+            bitmap = imageResource(id = R.drawable.batman_background),
             contentScale = ContentScale.FillHeight,
             modifier = Modifier
                 .fillMaxSize()
@@ -93,7 +93,7 @@ fun BatmanContent(modifier: Modifier, maxWidth: Dp, batmanSizeProgress: Float) {
                 }
         )
         Image(
-            asset = imageResource(id = R.drawable.batman_alone),
+            bitmap = imageResource(id = R.drawable.batman_alone),
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
                 .size(width = maxWidth * batmanSizeProgress, height = maxWidth)

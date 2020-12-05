@@ -12,19 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.onActive
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.WithConstraints
 import androidx.compose.ui.drawLayer
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.WithConstraints
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.font
 import androidx.compose.ui.text.font.fontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 import com.bruno.aybar.composechallenges.R
-import com.bruno.aybar.composechallenges.common.AbsoluteAlignment
 import com.bruno.aybar.composechallenges.common.AnimationSequenceStateHolder
 import com.bruno.aybar.composechallenges.common.transition
 
@@ -84,15 +85,15 @@ fun BatmanPage() {
                     batmanSizeProgress = transition[batmanSizeProgress]
                 )
                 BatmanLogo(Modifier
-                    .align(AbsoluteAlignment(transition[batmanLogoVerticalBias]))
+                    .align(BiasAlignment(verticalBias = transition[batmanLogoVerticalBias], horizontalBias = 0f))
                     .size(width = logoWidth, height = logoHeight)
                 )
                 BatmanWelcomeHint(Modifier
-                    .drawLayer(alpha = transition[welcomeAlpha])
-                    .align(AbsoluteAlignment(0.1f))
+                    .graphicsLayer(alpha = transition[welcomeAlpha])
+                    .align(BiasAlignment(verticalBias = 0.1f, horizontalBias =  0f))
                 )
                 BatmanPageButtons(Modifier
-                    .drawLayer(alpha = transition[batmanButtonsAlpha])
+                    .graphicsLayer(alpha = transition[batmanButtonsAlpha])
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 80.dp)
                 )

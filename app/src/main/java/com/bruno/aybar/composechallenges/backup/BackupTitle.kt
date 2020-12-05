@@ -4,11 +4,11 @@ import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.IntPropKey
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.transition
-import androidx.compose.foundation.Text
+import androidx.compose.material.Text
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawOpacity
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.bruno.aybar.composechallenges.ui.typography
 
@@ -33,7 +33,7 @@ fun BackupTitle(ui: BackupUi) {
         text = "Cloud Storage",
         style = typography.subtitle1,
         modifier = Modifier
-            .drawOpacity(transitionState[titleAlpha])
+            .alpha(transitionState[titleAlpha])
             .padding(
                 start = 16.dp, end = 16.dp,
                 bottom = 32.dp - transitionState[titleOffset].dp,

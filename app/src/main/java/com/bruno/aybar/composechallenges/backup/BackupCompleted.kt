@@ -4,18 +4,19 @@ package com.bruno.aybar.composechallenges.backup
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawOpacity
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.AmbientDensity
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
 import com.bruno.aybar.composechallenges.common.AnimationStateHolder
@@ -83,11 +84,10 @@ fun BackupCompleted(ui: BackupUi, modifier: Modifier, onOk: ()->Unit) {
 private fun OkButton(modifier: Modifier, onClick: () -> Unit, transition: TransitionState) {
     OutlinedButton(
         onClick = onClick,
-        backgroundColor = Color.White,
         modifier = modifier
             .preferredWidth(150.dp)
             .preferredHeight(buttonHeight)
-            .drawOpacity(transition[completedProgress])
+            .alpha(transition[completedProgress])
     ) {
         Text("Ok")
     }
@@ -99,12 +99,12 @@ private fun CompletedHint(modifier: Modifier, transition: TransitionState) {
         Spacer(Modifier.height(transition[topSpacing].dp))
         Text("data has successfully",
             style = typography.subtitle2,
-            modifier = Modifier.drawOpacity(transition[completedProgress])
+            modifier = Modifier.alpha(transition[completedProgress])
         )
         Spacer(Modifier.height(transition[textSeparation].dp))
         Text("uploaded",
             style = typography.subtitle2,
-            modifier = Modifier.drawOpacity(transition[completedProgress])
+            modifier = Modifier.alpha(transition[completedProgress])
         )
     }
 }
@@ -116,7 +116,7 @@ private val tan2 = tan(Math.toRadians(45.0)).toFloat()
 @Composable
 private fun AnimatedCheck(progress: Float, modifier: Modifier) {
     val color = MaterialTheme.colors.primary
-    val stroke = with(DensityAmbient.current) { Stroke(2.dp.toPx()) }
+    val stroke = with(AmbientDensity.current) { Stroke(2.dp.toPx()) }
 
     Canvas(modifier.size(100.dp)) {
         drawArc(color,
