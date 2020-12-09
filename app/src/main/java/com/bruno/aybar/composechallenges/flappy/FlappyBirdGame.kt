@@ -68,6 +68,7 @@ class FlappyBirdGame(
         this.currentScore = 0
 
         this.bird.centerX = boundsWidth / 2
+        this.bird.centerY = boundsHeight / 2
         // This logic could be much more complicated
         this.obstacles = (0..6).map {
             val width = OBSTACLE_WIDTH
