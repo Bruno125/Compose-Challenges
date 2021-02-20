@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.AmbientAnimationClock
 import androidx.compose.ui.platform.AnimationClockAmbient
 
 abstract class AnimationStateHolder<T>(initialState: T) {
@@ -41,7 +42,7 @@ abstract class AnimationStateHolder<T>(initialState: T) {
 fun <T> transition(
     definition: TransitionDefinition<T>,
     stateHolder: AnimationStateHolder<T>,
-    clock: AnimationClockObservable = AnimationClockAmbient.current,
+    clock: AnimationClockObservable = AmbientAnimationClock.current,
     label: String? = null,
     onStateChangeFinished: ((T) -> Unit)? = null
 ): TransitionState {
@@ -62,7 +63,7 @@ fun <T> transition(
 fun <T> transition(
     definition: TransitionDefinition<T>,
     stateHolder: AnimationSequenceStateHolder<T>,
-    clock: AnimationClockObservable = AnimationClockAmbient.current,
+    clock: AnimationClockObservable = AmbientAnimationClock.current,
     label: String? = null
 ): TransitionState {
     return androidx.compose.animation.transition(
