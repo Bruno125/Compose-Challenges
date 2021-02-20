@@ -6,19 +6,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.onActive
-import androidx.compose.runtime.remember
 import androidx.compose.ui.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.WithConstraints
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.graphicsLayer
 import com.bruno.aybar.composechallenges.R
 
@@ -60,11 +57,15 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
 
     val state = viewModel.state.observeAsState(FlappyGameUi.NotStarted)
 
-    WithConstraints(modifier) {
-        onActive {
+    BoxWithConstraints(modifier) {
+        LaunchedEffect(viewModel) {
             viewModel.onGameBoundsSet(maxWidth.value, maxHeight.value)
         }
-        Box(Modifier.clickable(onClick = viewModel::onTap, indication = null)) {
+
+        Box(Modifier
+            .clickable(onClick = viewModel::onTap, indication = null, interactionState = remember { InteractionState() })
+            .fillMaxSize()
+        ) {
             val currentState = state.value
             val birdAlignment = currentState.getBirdAlignment()
             Bird(currentState, Modifier.align(birdAlignment))
@@ -73,7 +74,7 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
                 DrawObstacle(Modifier
                     .size(obstacle.widthDp.dp, obstacle.heightDp.dp)
                     .graphicsLayer {
-                        rotationX = when(obstacle.orientation) {
+                        rotationX = when (obstacle.orientation) {
                             ObstaclePosition.Up -> 180f
                             ObstaclePosition.Down -> 0f
                         }
@@ -114,6 +115,7 @@ private fun Bird(state: FlappyGameUi, modifier: Modifier) {
     }
     Image(
         bitmap = imageResource(id = R.drawable.bird),
+        contentDescription = "Bird icon",
         modifier = modifier
             .size(48.dp)
             .graphicsLayer { rotationZ = birdRotation }
@@ -138,17 +140,19 @@ private enum class ObstacleBorderMode { AllBorders, Sides }
 
 @Composable
 private fun ObstacleBody(borderMode: ObstacleBorderMode, modifier: Modifier) {
-    WithConstraints(modifier) {
-        val canvasModifier = Modifier.fillMaxSize().composed {
-            when(borderMode) {
-                ObstacleBorderMode.AllBorders -> border(
-                    width = obstacleBorderWidth,
-                    color = obstacleBorder,
-                    shape = RoundedCornerShape(4.dp)
-                )
-                else -> this
+    BoxWithConstraints(modifier) {
+        val canvasModifier = Modifier
+            .fillMaxSize()
+            .composed {
+                when (borderMode) {
+                    ObstacleBorderMode.AllBorders -> border(
+                        width = obstacleBorderWidth,
+                        color = obstacleBorder,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    else -> this
+                }
             }
-        }
 
         Canvas(canvasModifier) {
             fun line(color: Color, width: Float, offset: Float) {
