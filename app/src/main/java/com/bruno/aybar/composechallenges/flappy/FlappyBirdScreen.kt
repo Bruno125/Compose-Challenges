@@ -19,6 +19,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material.Text
+import androidx.compose.ui.graphics.graphicsLayer
 import com.bruno.aybar.composechallenges.R
 
 val skyColor = Color(0xFF74B9F5)
@@ -71,10 +72,12 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
             currentState.getObstacles().forEach { obstacle ->
                 DrawObstacle(Modifier
                     .size(obstacle.widthDp.dp, obstacle.heightDp.dp)
-                    .drawLayer(rotationX = when(obstacle.orientation) {
-                        ObstaclePosition.Up -> 180f
-                        ObstaclePosition.Down -> 0f
-                    })
+                    .graphicsLayer {
+                        rotationX = when(obstacle.orientation) {
+                            ObstaclePosition.Up -> 180f
+                            ObstaclePosition.Down -> 0f
+                        }
+                    }
                     .absoluteOffset(
                         x = obstacle.leftMargin.dp,
                         y = obstacle.topMargin.dp
@@ -113,7 +116,7 @@ private fun Bird(state: FlappyGameUi, modifier: Modifier) {
         bitmap = imageResource(id = R.drawable.bird),
         modifier = modifier
             .size(48.dp)
-            .drawLayer(rotationZ = birdRotation)
+            .graphicsLayer { rotationZ = birdRotation }
     )
 }
 
