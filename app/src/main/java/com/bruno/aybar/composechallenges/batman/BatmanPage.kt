@@ -9,6 +9,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.onActive
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -19,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.WithConstraints
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.font
 import androidx.compose.ui.text.font.fontFamily
 import androidx.compose.ui.unit.Dp
@@ -35,7 +38,7 @@ private val batmanColors = darkColors(
 )
 
 private val batmanTypography = Typography(
-    defaultFontFamily = fontFamily(font(R.font.vidaloka_regular)),
+    defaultFontFamily = FontFamily(Font(R.font.vidaloka_regular)),
     h1 = TextStyle(fontSize = 40.sp),
     h2 = TextStyle(fontSize = 20.sp),
     subtitle1 = TextStyle(fontSize = 12.sp, color = Color.Gray),
@@ -54,50 +57,48 @@ fun BatmanTheme(content: @Composable () -> Unit) {
 @Composable
 fun BatmanPage() {
     Surface(Modifier.fillMaxSize()) {
-        WithConstraints {
-            Box {
-                val animationStateHolder = remember {
-                    AnimationSequenceStateHolder(
-                        listOf(
-                            BatmanPageState.LogoCovering,
-                            BatmanPageState.LogoCentered,
-                            BatmanPageState.LogoAndHint,
-                            BatmanPageState.Completed,
-                        )
+        BoxWithConstraints {
+            val animationStateHolder = remember {
+                AnimationSequenceStateHolder(
+                    listOf(
+                        BatmanPageState.LogoCovering,
+                        BatmanPageState.LogoCentered,
+                        BatmanPageState.LogoAndHint,
+                        BatmanPageState.Completed,
                     )
-                }
-
-                val transition = transition(
-                    definition = remember { pageTransition(maxHeight.value) },
-                    stateHolder = animationStateHolder
-                )
-
-                onActive {
-                    animationStateHolder.start()
-                }
-
-                val logoHeight = Dp(transition[batmanLogoHeight]) * 2
-                val logoWidth = logoHeight * 2
-
-                BatmanContent(
-                    maxWidth = maxWidth,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    batmanSizeProgress = transition[batmanSizeProgress]
-                )
-                BatmanLogo(Modifier
-                    .align(BiasAlignment(verticalBias = transition[batmanLogoVerticalBias], horizontalBias = 0f))
-                    .size(width = logoWidth, height = logoHeight)
-                )
-                BatmanWelcomeHint(Modifier
-                    .graphicsLayer(alpha = transition[welcomeAlpha])
-                    .align(BiasAlignment(verticalBias = 0.1f, horizontalBias =  0f))
-                )
-                BatmanPageButtons(Modifier
-                    .graphicsLayer(alpha = transition[batmanButtonsAlpha])
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 80.dp)
                 )
             }
+
+            val transition = transition(
+                definition = remember { pageTransition(maxHeight.value) },
+                stateHolder = animationStateHolder
+            )
+
+            LaunchedEffect(Unit) {
+                animationStateHolder.start()
+            }
+
+            val logoHeight = Dp(transition[batmanLogoHeight]) * 2
+            val logoWidth = logoHeight * 2
+
+            BatmanContent(
+                maxWidth = maxWidth,
+                modifier = Modifier.align(Alignment.TopCenter),
+                batmanSizeProgress = transition[batmanSizeProgress]
+            )
+            BatmanLogo(Modifier
+                .align(BiasAlignment(verticalBias = transition[batmanLogoVerticalBias], horizontalBias = 0f))
+                .size(width = logoWidth, height = logoHeight)
+            )
+            BatmanWelcomeHint(Modifier
+                .graphicsLayer(alpha = transition[welcomeAlpha])
+                .align(BiasAlignment(verticalBias = 0.1f, horizontalBias =  0f))
+            )
+            BatmanPageButtons(Modifier
+                .graphicsLayer(alpha = transition[batmanButtonsAlpha])
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp)
+            )
         }
     }
 }
