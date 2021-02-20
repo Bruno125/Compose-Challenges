@@ -21,7 +21,11 @@ import com.bruno.aybar.composechallenges.R
 
 @Composable
 fun BatmanLogo(modifier: Modifier) {
-    Image(bitmap = imageResource(id = R.drawable.batman_logo), modifier = modifier)
+    Image(
+        bitmap = imageResource(id = R.drawable.batman_logo),
+        contentDescription = "Batman logo",
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -58,6 +62,7 @@ fun BatmanButton(label: String, iconPosition: BatmanButtonIconPosition) {
             )
             Image(
                 bitmap = imageResource(id = R.drawable.batman_logo),
+                contentDescription = null, // not needed because it's just decoration for button
                 colorFilter = ColorFilter.tint(Color.Gray.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .size(width = 60.dp, height = 30.dp)
@@ -84,6 +89,7 @@ fun BatmanContent(modifier: Modifier, maxWidth: Dp, batmanSizeProgress: Float) {
         val (backgroundRef, batmanRef) = createRefs()
         Image(
             bitmap = imageResource(id = R.drawable.batman_background),
+            contentDescription = null, // not needed because background is not informative
             contentScale = ContentScale.FillHeight,
             modifier = Modifier
                 .fillMaxSize()
@@ -94,6 +100,7 @@ fun BatmanContent(modifier: Modifier, maxWidth: Dp, batmanSizeProgress: Float) {
         )
         Image(
             bitmap = imageResource(id = R.drawable.batman_alone),
+            contentDescription = null, // not needed because image is not informative
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
                 .size(width = maxWidth * batmanSizeProgress, height = maxWidth)
