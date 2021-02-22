@@ -41,7 +41,7 @@ class AnimatedCompletedState: AnimationStateHolder<BackupCompletedState>(
 ) {
 
     fun update(ui: BackupUi) {
-        current = when(ui) {
+        state = when(ui) {
             is BackupUi.BackupCompleted -> BackupCompletedState.VISIBLE
             else -> BackupCompletedState.HIDDEN
         }
@@ -51,10 +51,10 @@ class AnimatedCompletedState: AnimationStateHolder<BackupCompletedState>(
 
 @Composable
 fun BackupCompleted(ui: BackupUi, modifier: Modifier, onOk: ()->Unit) {
-    val state = remember { AnimatedCompletedState() }
-    state.update(ui)
+    val stateHolder = remember { AnimatedCompletedState() }
+    stateHolder.update(ui)
 
-    val transition: Transition<BackupCompletedState> = updateTransition(targetState = state.current)
+    val transition: Transition<BackupCompletedState> = updateTransition(targetState = stateHolder.state)
 
     val floatSpec = AnimationSpecBuilder<Float>()
     val intSpec = AnimationSpecBuilder<Int>()

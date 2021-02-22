@@ -1,9 +1,6 @@
 package com.bruno.aybar.composechallenges.backup
 
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -41,12 +38,13 @@ private data class CloudUiProperties(
 )
 
 class AnimatedCloudState: AnimationStateHolder<CloudState>(initialState = CloudState.CLOUD) {
-    private var _progress = mutableStateOf(0F)
-    var progress: State<Float> = _progress
+
+    var progress = 0f
+        private set
 
     fun update(ui :BackupUi) {
         updateProgress(ui)
-        current = when(ui) {
+        state = when(ui) {
             is BackupUi.RequestBackup -> CloudState.CLOUD
             is BackupUi.BackupInProgress -> CloudState.MERGED
             is BackupUi.BackupCompleted -> CloudState.COVERING
@@ -55,7 +53,7 @@ class AnimatedCloudState: AnimationStateHolder<CloudState>(initialState = CloudS
 
     private fun updateProgress(ui: BackupUi) {
         if(ui is BackupUi.BackupInProgress) {
-            _progress.value = ui.progress / 100f
+            progress = ui.progress / 100f
         }
     }
 
@@ -67,7 +65,7 @@ fun BackupCloud(ui: BackupUi, modifier: Modifier) {
     val cloudState = remember { AnimatedCloudState() }
     cloudState.update(ui)
 
-    val transition: Transition<CloudState> = updateTransition(cloudState.current)
+    val transition: Transition<CloudState> = updateTransition(cloudState.state)
     val defaultDuration = 1000
     val circleSize: Float by transition.animateFloat(
         transitionSpec = {
@@ -123,7 +121,7 @@ fun BackupCloud(ui: BackupUi, modifier: Modifier) {
         circleSize = circleSize,
         sideCloudsOffset = sideCloudsOffset,
         exitBubblesProgress = exitBubblesProgress,
-        progress = cloudState.progress.value
+        progress = cloudState.progress
     )
 
     BackupCloudContent(properties, modifier)

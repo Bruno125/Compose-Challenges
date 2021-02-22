@@ -35,7 +35,7 @@ class BodyAnimationState: AnimationStateHolder<BodyState>(BodyState.LAST_BACKUP)
 
     fun update(ui: BackupUi) {
         updateCachedValues(ui)
-        current = when(ui) {
+        state = when(ui) {
             is BackupUi.RequestBackup -> BodyState.LAST_BACKUP
             is BackupUi.BackupInProgress,
             is BackupUi.BackupCompleted-> BodyState.UPLOADING
@@ -54,10 +54,10 @@ class BodyAnimationState: AnimationStateHolder<BodyState>(BodyState.LAST_BACKUP)
 @Composable
 fun BackupBody(state: BackupUi, modifier: Modifier) {
 
-    val bodyState = remember { BodyAnimationState() }
-    bodyState.update(state)
+    val stateHolder = remember { BodyAnimationState() }
+    stateHolder.update(state)
 
-    val transition: Transition<BodyState> = updateTransition(bodyState.current)
+    val transition: Transition<BodyState> = updateTransition(stateHolder.state)
 
     val lastBackupAlpha: Float by transition.animateFloat(
         transitionSpec = {
@@ -142,13 +142,13 @@ fun BackupBody(state: BackupUi, modifier: Modifier) {
     Box(modifier) {
         LastBackup(
             modifier = Modifier.align(Alignment.Center),
-            date = bodyState.cachedBackupDate,
+            date = stateHolder.cachedBackupDate,
             properties = properties,
         )
 
         UploadingHint(
             modifier = Modifier.align(Alignment.Center),
-            progress = bodyState.cachedProgress,
+            progress = stateHolder.cachedProgress,
             properties = properties,
         )
     }

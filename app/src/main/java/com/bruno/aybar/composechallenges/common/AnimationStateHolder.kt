@@ -3,6 +3,7 @@ package com.bruno.aybar.composechallenges.common
 import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.animation.core.TransitionDefinition
 import androidx.compose.animation.core.TransitionState
+import androidx.compose.animation.core.animateTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,11 +40,8 @@ abstract class LegacyAnimationStateHolder<T>(initialState: T) {
 
 abstract class AnimationStateHolder<T>(initialState: T) {
 
-    /**
-     * Represents the current state of the animation. Its value won't change
-     * until the animation to a new state has been completed.
-     */
-    var current by mutableStateOf(initialState)
+    var state: T = initialState
+        protected set
 }
 
 @Composable

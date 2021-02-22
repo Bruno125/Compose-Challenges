@@ -32,7 +32,7 @@ class BackupActionButtonState: AnimationStateHolder<ButtonsState>(
 ){
 
     fun update(ui: BackupUi) {
-        current = when(ui) {
+        state = when(ui) {
             is BackupUi.RequestBackup -> ButtonsState.CreateBackup
             else -> ButtonsState.Cancel
         }
@@ -48,11 +48,11 @@ fun BackupActionButtons(
     onCancel: ()->Unit,
     modifier: Modifier
 ) {
-    val animationState = remember { BackupActionButtonState() }
+    val stateHolder = remember { BackupActionButtonState() }
 
-    animationState.update(ui)
+    stateHolder.update(ui)
 
-    val transition: Transition<ButtonsState> = updateTransition(animationState.current)
+    val transition: Transition<ButtonsState> = updateTransition(stateHolder.state)
     val animationDuration = DefaultDurationMillis
 
     val backupButtonAlpha: Float by transition.animateFloat(
