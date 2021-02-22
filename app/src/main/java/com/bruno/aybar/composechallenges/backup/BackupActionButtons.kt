@@ -13,15 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.bruno.aybar.composechallenges.common.AnimationStateHolder
-import com.bruno.aybar.composechallenges.common.transition
 import com.bruno.aybar.composechallenges.ui.buttonHeight
 
-
-private val backupButtonAlpha = FloatPropKey("Backup button alpha")
-private val backupButtonSizeMultiplier = FloatPropKey("Backup button size multiplier")
-
-private val cancelButtonAlpha = FloatPropKey("Cancel button alpha")
-private val cancelButtonWidth = IntPropKey("Cancel button width")
+private data class ButtonsUiProperties(
+    val backupButtonAlpha: Float,
+    val backupButtonSizeMultiplier: Float,
+    val cancelButtonAlpha: Float,
+    val cancelButtonWidth: Int,
+)
 
 enum class ButtonsState {
     CreateBackup,
@@ -33,10 +32,10 @@ class BackupActionButtonState: AnimationStateHolder<ButtonsState>(
 ){
 
     fun update(ui: BackupUi) {
-        animateTo(newState = when(ui) {
+        current = when(ui) {
             is BackupUi.RequestBackup -> ButtonsState.CreateBackup
             else -> ButtonsState.Cancel
-        })
+        }
     }
 
 }
@@ -53,22 +52,71 @@ fun BackupActionButtons(
 
     animationState.update(ui)
 
-    val transition = transition(
-        definition = AnimateButtonsTransition,
-        stateHolder = animationState
+    val transition: Transition<ButtonsState> = updateTransition(animationState.current)
+    val animationDuration = DefaultDurationMillis
+
+    val backupButtonAlpha: Float by transition.animateFloat(
+            transitionSpec = {
+                if(ButtonsState.CreateBackup isTransitioningTo ButtonsState.Cancel) {
+                    tween(delayMillis = animationDuration, easing = LinearEasing)
+                } else {
+                    tween(easing = LinearEasing)
+                }
+            },
+            targetValueByState = { if(it == ButtonsState.CreateBackup) 1f else 0f }
+    )
+
+    val backupButtonSizeMultiplier: Float by transition.animateFloat(
+            transitionSpec = {
+                if(ButtonsState.CreateBackup isTransitioningTo ButtonsState.Cancel) {
+                    keyframes { 0.95f at animationDuration / 2 }
+                } else {
+                    keyframes { 1.05f at animationDuration / 2 }
+                }
+            },
+            targetValueByState = { 1f }
+    )
+
+    val cancelButtonAlpha: Float by transition.animateFloat(
+            transitionSpec = {
+                if(ButtonsState.CreateBackup isTransitioningTo ButtonsState.Cancel) {
+                    tween(delayMillis = animationDuration, easing = LinearEasing)
+                } else {
+                    tween(easing = LinearEasing)
+                }
+            },
+            targetValueByState = { if(it == ButtonsState.CreateBackup) 0f else 0.6f }
+    )
+
+    val cancelButtonWidth: Int by transition.animateInt(
+            transitionSpec = {
+                if(ButtonsState.CreateBackup isTransitioningTo ButtonsState.Cancel) {
+                    tween(delayMillis = animationDuration + 150)
+                } else {
+                    tween()
+                }
+            },
+            targetValueByState = { if(it == ButtonsState.CreateBackup) 180 else 150 }
+    )
+
+    val properties = ButtonsUiProperties(
+            backupButtonAlpha = backupButtonAlpha,
+            backupButtonSizeMultiplier = backupButtonSizeMultiplier,
+            cancelButtonAlpha = cancelButtonAlpha,
+            cancelButtonWidth = cancelButtonWidth
     )
 
     Box(modifier) {
 
         BackupButton(
             onClick = onBackup,
-            transition = transition,
+            properties = properties,
             modifier = Modifier.align(Alignment.Center)
         )
 
         CancelButton(
             onClick = onCancel,
-            transition = transition,
+            properties = properties,
             modifier = Modifier.align(Alignment.Center)
         )
 
@@ -76,15 +124,15 @@ fun BackupActionButtons(
 }
 
 @Composable
-private fun BackupButton(onClick: ()->Unit, modifier: Modifier, transition: TransitionState) {
-    if(transition[backupButtonAlpha] == 0f) return
+private fun BackupButton(onClick: ()->Unit, properties: ButtonsUiProperties, modifier: Modifier) {
+    if(properties.backupButtonAlpha == 0f) return
 
     Button(
         onClick = onClick,
         modifier = modifier
-            .alpha(transition[backupButtonAlpha])
-            .preferredWidth(240.dp * transition[backupButtonSizeMultiplier])
-            .preferredHeight(buttonHeight * transition[backupButtonSizeMultiplier]),
+            .alpha(properties.backupButtonAlpha)
+            .preferredWidth(240.dp * properties.backupButtonSizeMultiplier)
+            .preferredHeight(buttonHeight * properties.backupButtonSizeMultiplier),
         shape = RoundedCornerShape(10.dp)
     ) {
         Text(text = "Create Backup")
@@ -92,49 +140,16 @@ private fun BackupButton(onClick: ()->Unit, modifier: Modifier, transition: Tran
 }
 
 @Composable
-private fun CancelButton(onClick: ()->Unit, modifier: Modifier, transition: TransitionState) {
-    if(transition[cancelButtonAlpha] == 0f) return
+private fun CancelButton(onClick: ()->Unit, properties: ButtonsUiProperties, modifier: Modifier) {
+    if(properties.cancelButtonAlpha == 0f) return
 
     OutlinedButton(
         onClick = onClick,
         modifier = modifier
-            .alpha(transition[cancelButtonAlpha])
-            .preferredWidth(transition[cancelButtonWidth].dp)
+            .alpha(properties.cancelButtonAlpha)
+            .preferredWidth(properties.cancelButtonWidth.dp)
             .preferredHeight(buttonHeight),
     ) {
         Text(text = "Cancel")
     }
-}
-
-private val AnimateButtonsTransition = transitionDefinition<ButtonsState> {
-    val animationDuration = DefaultDurationMillis
-
-    state(ButtonsState.CreateBackup) {
-        this[backupButtonAlpha] = 1f
-        this[backupButtonSizeMultiplier] = 1f
-
-        this[cancelButtonAlpha] = 0f
-        this[cancelButtonWidth] = 180
-    }
-    state(ButtonsState.Cancel) {
-        this[backupButtonAlpha] = 0f
-        this[backupButtonSizeMultiplier] = 1f
-        this[cancelButtonAlpha] = 0.6f
-        this[cancelButtonWidth] = 150
-    }
-
-    transition(fromState = ButtonsState.CreateBackup, toState = ButtonsState.Cancel) {
-        backupButtonSizeMultiplier using keyframes { 0.95f at animationDuration / 2 }
-        backupButtonAlpha using tween(delayMillis = animationDuration, easing = LinearEasing)
-        cancelButtonAlpha using tween(delayMillis = animationDuration, easing = LinearEasing)
-        cancelButtonWidth using tween(delayMillis = animationDuration + 150)
-    }
-
-    transition(fromState = ButtonsState.Cancel, toState = ButtonsState.CreateBackup) {
-        backupButtonAlpha using tween(easing = LinearEasing)
-        cancelButtonAlpha using tween(easing = LinearEasing)
-        cancelButtonWidth using tween()
-        backupButtonSizeMultiplier using keyframes { 1.05f at animationDuration / 2 }
-    }
-
 }

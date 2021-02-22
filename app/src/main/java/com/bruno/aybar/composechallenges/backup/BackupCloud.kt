@@ -1,20 +1,25 @@
 package com.bruno.aybar.composechallenges.backup
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.*
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.bruno.aybar.composechallenges.common.AnimationStateHolder
-import com.bruno.aybar.composechallenges.common.transition
 import com.bruno.aybar.composechallenges.ui.ComposeChallengesTheme
 import com.bruno.aybar.composechallenges.ui.purple1
 import com.bruno.aybar.composechallenges.ui.purple2
@@ -28,26 +33,29 @@ enum class CloudState {
 private val cloudColor = Color.White
 private const val expandedSize = 120f
 
-private val circleSize = FloatPropKey()
-private val sideCloudsOffset = FloatPropKey()
-private val exitBubblesProgress = FloatPropKey()
+private data class CloudUiProperties(
+    val circleSize: Float,
+    val sideCloudsOffset: Float,
+    val exitBubblesProgress: Float,
+    val progress: Float,
+)
 
 class AnimatedCloudState: AnimationStateHolder<CloudState>(initialState = CloudState.CLOUD) {
-    var progress = 0f
-        private set
+    private var _progress = mutableStateOf(0F)
+    var progress: State<Float> = _progress
 
     fun update(ui :BackupUi) {
         updateProgress(ui)
-        animateTo(newState = when(ui) {
+        current = when(ui) {
             is BackupUi.RequestBackup -> CloudState.CLOUD
             is BackupUi.BackupInProgress -> CloudState.MERGED
             is BackupUi.BackupCompleted -> CloudState.COVERING
-        })
+        }
     }
 
     private fun updateProgress(ui: BackupUi) {
         if(ui is BackupUi.BackupInProgress) {
-            progress = ui.progress / 100f
+            _progress.value = ui.progress / 100f
         }
     }
 
@@ -59,18 +67,78 @@ fun BackupCloud(ui: BackupUi, modifier: Modifier) {
     val cloudState = remember { AnimatedCloudState() }
     cloudState.update(ui)
 
-    val transition = transition(
-        definition = cloudAnimation,
-        stateHolder = cloudState
+    val transition: Transition<CloudState> = updateTransition(cloudState.current)
+    val defaultDuration = 1000
+    val circleSize: Float by transition.animateFloat(
+        transitionSpec = {
+            if(CloudState.MERGED isTransitioningTo CloudState.COVERING) {
+                tween(delayMillis = 300, durationMillis = defaultDuration)
+            } else {
+                tween(defaultDuration)
+            }
+        },
+        targetValueByState = {
+            when(it) {
+                CloudState.CLOUD -> 1f
+                CloudState.MERGED -> 1.5f
+                CloudState.COVERING -> 10F
+            }
+        }
     )
+
+    val sideCloudsOffset: Float by transition.animateFloat(
+        transitionSpec = {
+            if(CloudState.MERGED isTransitioningTo CloudState.COVERING) {
+                tween(delayMillis = 300)
+            } else {
+                tween(defaultDuration)
+            }
+        },
+        targetValueByState = {
+            when(it) {
+                CloudState.CLOUD -> 0f
+                CloudState.MERGED -> 1f
+                else -> 1f
+            }
+        }
+    )
+
+    val exitBubblesProgress: Float by transition.animateFloat(
+        transitionSpec = {
+            if(CloudState.MERGED isTransitioningTo CloudState.COVERING) {
+                tween(durationMillis = 1500)
+            } else {
+                tween(defaultDuration)
+            }
+        },
+        targetValueByState = {
+            when(it) {
+                CloudState.COVERING -> 0.8f
+                else -> 0f
+            }
+        }
+    )
+
+    val properties = CloudUiProperties(
+        circleSize = circleSize,
+        sideCloudsOffset = sideCloudsOffset,
+        exitBubblesProgress = exitBubblesProgress,
+        progress = cloudState.progress.value
+    )
+
+    BackupCloudContent(properties, modifier)
+}
+
+@Composable
+private fun BackupCloudContent(properties: CloudUiProperties, modifier: Modifier) {
 
     Canvas(modifier) {
         val baseRadius = size.height / 4
-        val multiplier = transition[circleSize] + cloudState.progress * 1.5f
+        val multiplier = properties.circleSize + properties.progress * 1.5f
         val actualRadius = baseRadius * multiplier
 
-        val verticalCenter = if(cloudState.progress != 0f) {
-            val baseline = center.y + baseRadius * transition[circleSize]
+        val verticalCenter = if(properties.progress != 0f) {
+            val baseline = center.y + baseRadius * properties.circleSize
             baseline - actualRadius
         } else center.y
 
@@ -83,14 +151,14 @@ fun BackupCloud(ui: BackupUi, modifier: Modifier) {
             )
         )
 
-        drawSideClouds(baseRadius, transition[sideCloudsOffset])
+        drawSideClouds(baseRadius, properties.sideCloudsOffset)
 
-        if(cloudState.progress != 0f) {
+        if(properties.progress != 0f) {
             drawBubbles(
-                baseline = center.y + baseRadius * transition[circleSize].coerceAtMost(1.5f),
+                baseline = center.y + baseRadius * properties.circleSize.coerceAtMost(1.5f),
                 mainCircleCenter = Offset(center.x, verticalCenter),
                 mainCircleSize = actualRadius,
-                progress = cloudState.progress + transition[exitBubblesProgress]
+                progress = properties.progress + properties.exitBubblesProgress
             )
         }
     }
@@ -214,45 +282,6 @@ data class Bubble(
     val size: Float,
     val initialPosition: Float
 )
-
-
-private val cloudAnimation = transitionDefinition<CloudState> {
-    state(CloudState.CLOUD) {
-        this[circleSize] = 1f
-        this[sideCloudsOffset] = 0f
-        this[exitBubblesProgress] = 0f
-    }
-    state(CloudState.MERGED) {
-        this[circleSize] = 1.5f
-        this[sideCloudsOffset] = 1f
-        this[exitBubblesProgress] = 0f
-    }
-    state(CloudState.COVERING) {
-        this[circleSize] = 10f
-        this[sideCloudsOffset] = 1f
-        this[exitBubblesProgress] = 0.8f
-    }
-
-    val duration = 1000
-    transition(fromState = CloudState.CLOUD, toState = CloudState.MERGED) {
-        circleSize using tween(durationMillis = duration)
-        sideCloudsOffset using tween(durationMillis = duration)
-    }
-    transition(fromState = CloudState.MERGED, toState = CloudState.CLOUD) {
-        circleSize using tween(durationMillis = duration)
-        sideCloudsOffset using tween(durationMillis = duration)
-    }
-    transition(fromState = CloudState.MERGED, toState = CloudState.COVERING) {
-        circleSize using tween(delayMillis = 300,durationMillis = duration)
-        sideCloudsOffset using tween(delayMillis = 300)
-        exitBubblesProgress using tween(1500)
-    }
-    transition(fromState = CloudState.COVERING, toState = CloudState.MERGED) {
-        circleSize using tween(durationMillis = duration)
-        sideCloudsOffset using tween(durationMillis = duration)
-        exitBubblesProgress using tween(delayMillis = duration)
-    }
-}
 
 @Preview
 @Composable

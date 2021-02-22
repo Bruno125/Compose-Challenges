@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -17,18 +19,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.AmbientDensity
-import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
 import com.bruno.aybar.composechallenges.common.AnimationStateHolder
-import com.bruno.aybar.composechallenges.common.transition
 import com.bruno.aybar.composechallenges.ui.buttonHeight
 import com.bruno.aybar.composechallenges.ui.typography
 import kotlin.math.tan
 
-private val completedProgress = FloatPropKey()
-private val topSpacing = IntPropKey()
-private val textSeparation = IntPropKey()
-private val buttonBottom = IntPropKey()
+private data class BackupCompletedUiProperties(
+    val completedProgress: Float,
+    val topSpacing: Int,
+    val textSeparation: Int,
+    val buttonBottom: Int,
+)
 
 enum class BackupCompletedState {
     HIDDEN, VISIBLE
@@ -39,10 +41,10 @@ class AnimatedCompletedState: AnimationStateHolder<BackupCompletedState>(
 ) {
 
     fun update(ui: BackupUi) {
-        animateTo(newState = when(ui) {
+        current = when(ui) {
             is BackupUi.BackupCompleted -> BackupCompletedState.VISIBLE
             else -> BackupCompletedState.HIDDEN
-        })
+        }
     }
 
 }
@@ -50,18 +52,41 @@ class AnimatedCompletedState: AnimationStateHolder<BackupCompletedState>(
 @Composable
 fun BackupCompleted(ui: BackupUi, modifier: Modifier, onOk: ()->Unit) {
     val state = remember { AnimatedCompletedState() }
+    state.update(ui)
 
-    val transition = transition(
-        definition = completedAnimation,
-        stateHolder = state
+    val transition: Transition<BackupCompletedState> = updateTransition(targetState = state.current)
+
+    val floatSpec = AnimationSpecBuilder<Float>()
+    val intSpec = AnimationSpecBuilder<Int>()
+
+    val completedProgress: Float by transition.animateFloat(
+        transitionSpec = { with(floatSpec) { buildAnimationSpec() } },
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 0f else 1f }
+    )
+    val topSpacing: Int by transition.animateInt(
+        transitionSpec = { with(intSpec) { buildAnimationSpec() } },
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 36 else 20 }
+    )
+    val textSeparation: Int by transition.animateInt(
+        transitionSpec = { with(intSpec) { buildAnimationSpec() } },
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 16 else 4 }
+    )
+    val buttonBottom: Int by transition.animateInt(
+        transitionSpec = { with(intSpec) { buildAnimationSpec() } },
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 8 else 24 }
     )
 
-    state.update(ui)
+    val properties = BackupCompletedUiProperties(
+        completedProgress = completedProgress,
+        topSpacing = topSpacing,
+        textSeparation = textSeparation,
+        buttonBottom = buttonBottom,
+    )
 
     ConstraintLayout(modifier) {
         val (checkRef, textRef, buttonRef) = createRefs()
 
-        AnimatedCheck(transition[completedProgress], Modifier.constrainAs(checkRef) {
+        AnimatedCheck(properties.completedProgress, Modifier.constrainAs(checkRef) {
             bottom.linkTo(textRef.top)
             centerHorizontallyTo(parent)
         })
@@ -69,42 +94,42 @@ fun BackupCompleted(ui: BackupUi, modifier: Modifier, onOk: ()->Unit) {
         CompletedHint(modifier = Modifier.constrainAs(textRef) {
             centerVerticallyTo(parent)
             centerHorizontallyTo(parent)
-        }, transition = transition)
+        }, properties = properties)
 
         OkButton(onClick = onOk, modifier = Modifier.constrainAs(buttonRef) {
-            bottom.linkTo(parent.bottom, margin = transition[buttonBottom].dp)
+            bottom.linkTo(parent.bottom, margin = properties.buttonBottom.dp)
             centerHorizontallyTo(parent)
-        }, transition = transition)
+        }, properties = properties)
 
     }
 
 }
 
 @Composable
-private fun OkButton(modifier: Modifier, onClick: () -> Unit, transition: TransitionState) {
+private fun OkButton(modifier: Modifier, onClick: () -> Unit, properties: BackupCompletedUiProperties) {
     OutlinedButton(
         onClick = onClick,
         modifier = modifier
             .preferredWidth(150.dp)
             .preferredHeight(buttonHeight)
-            .alpha(transition[completedProgress])
+            .alpha(properties.completedProgress)
     ) {
         Text("Ok")
     }
 }
 
 @Composable
-private fun CompletedHint(modifier: Modifier, transition: TransitionState) {
+private fun CompletedHint(modifier: Modifier, properties: BackupCompletedUiProperties) {
     Column(modifier.height(100.dp) , horizontalAlignment = Alignment.CenterHorizontally) {
-        Spacer(Modifier.height(transition[topSpacing].dp))
+        Spacer(Modifier.height(properties.topSpacing.dp))
         Text("data has successfully",
             style = typography.subtitle2,
-            modifier = Modifier.alpha(transition[completedProgress])
+            modifier = Modifier.alpha(properties.completedProgress)
         )
-        Spacer(Modifier.height(transition[textSeparation].dp))
+        Spacer(Modifier.height(properties.textSeparation.dp))
         Text("uploaded",
             style = typography.subtitle2,
-            modifier = Modifier.alpha(transition[completedProgress])
+            modifier = Modifier.alpha(properties.completedProgress)
         )
     }
 }
@@ -159,33 +184,15 @@ private fun DrawScope.drawAnimatedCheck(progress: Float, stroke: Stroke, color: 
     drawLine(color, line2_start, line2_end, strokeWidth = stroke.width)
 }
 
-private val completedAnimation = transitionDefinition<BackupCompletedState> {
-    state(BackupCompletedState.HIDDEN) {
-        this[completedProgress] = 0f
-        this[topSpacing] = 36
-        this[textSeparation] = 16
-        this[buttonBottom] = 8
-    }
-    state(BackupCompletedState.VISIBLE) {
-        this[completedProgress] = 1f
-        this[topSpacing] = 20
-        this[textSeparation] = 4
-        this[buttonBottom] = 24
-    }
+private class AnimationSpecBuilder<T> {
+    private val duration = 1000
+    private val delay = 1000 // wait for cloud progress -> covering animation
 
-    val duration = 1000
-    val delay = 1000 // wait for cloud progress -> covering animation
-    transition(fromState = BackupCompletedState.HIDDEN, toState = BackupCompletedState.VISIBLE) {
-        completedProgress using tween(duration, delay, easing = LinearOutSlowInEasing)
-        topSpacing using tween(duration, delay, easing = LinearOutSlowInEasing)
-        textSeparation using tween(duration, delay, easing = LinearOutSlowInEasing)
-        buttonBottom using tween(duration, delay, easing = LinearOutSlowInEasing)
-    }
-
-    transition(fromState = BackupCompletedState.VISIBLE, toState = BackupCompletedState.HIDDEN) {
-        completedProgress using tween(duration, easing = LinearOutSlowInEasing)
-        topSpacing using tween(duration, easing = LinearOutSlowInEasing)
-        textSeparation using tween(duration, easing = LinearOutSlowInEasing)
-        buttonBottom using tween(duration, easing = LinearOutSlowInEasing)
+    fun Transition.Segment<BackupCompletedState>.buildAnimationSpec(): FiniteAnimationSpec<T> {
+        return if(BackupCompletedState.HIDDEN isTransitioningTo BackupCompletedState.VISIBLE) {
+            tween(duration, delay, easing = LinearOutSlowInEasing)
+        } else {
+            tween(duration, easing = LinearOutSlowInEasing)
+        }
     }
 }
