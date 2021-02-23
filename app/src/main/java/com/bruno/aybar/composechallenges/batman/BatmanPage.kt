@@ -1,36 +1,25 @@
 package com.bruno.aybar.composechallenges.batman
 
-import androidx.compose.animation.core.FloatPropKey
-import androidx.compose.animation.core.transitionDefinition
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.onActive
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.drawLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.WithConstraints
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.font
-import androidx.compose.ui.text.font.fontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.bruno.aybar.composechallenges.R
-import com.bruno.aybar.composechallenges.common.AnimationSequenceStateHolder
-import com.bruno.aybar.composechallenges.common.transition
 
 private val batmanColors = darkColors(
     primary = Color(0xFFffe95e),
@@ -53,49 +42,46 @@ fun BatmanTheme(content: @Composable () -> Unit) {
     )
 }
 
+@Composable
+fun AnimatedBatmanPage() {
+    val transitionState = remember { MutableTransitionState(BatmanPageState.LogoCovering) }
+
+    val target = when (transitionState.currentState) {
+        BatmanPageState.LogoCovering -> BatmanPageState.LogoCentered
+        BatmanPageState.LogoCentered -> BatmanPageState.LogoAndHint
+        BatmanPageState.LogoAndHint -> BatmanPageState.Completed
+        else -> null
+    }
+    target?.let { transitionState.targetState = it }
+
+    BatmanPage(transitionState)
+}
 
 @Composable
-fun BatmanPage() {
+private fun BatmanPage(transitionState: MutableTransitionState<BatmanPageState>) {
     Surface(Modifier.fillMaxSize()) {
         BoxWithConstraints {
-            val animationStateHolder = remember {
-                AnimationSequenceStateHolder(
-                    listOf(
-                        BatmanPageState.LogoCovering,
-                        BatmanPageState.LogoCentered,
-                        BatmanPageState.LogoAndHint,
-                        BatmanPageState.Completed,
-                    )
-                )
-            }
 
-            val transition = transition(
-                definition = remember { pageTransition(maxHeight.value) },
-                stateHolder = animationStateHolder
-            )
+            val properties = buildUiProperties(transitionState, maxHeight.value)
 
-            LaunchedEffect(Unit) {
-                animationStateHolder.start()
-            }
-
-            val logoHeight = Dp(transition[batmanLogoHeight]) * 2
+            val logoHeight = Dp(properties.batmanLogoHeight) * 2
             val logoWidth = logoHeight * 2
 
             BatmanContent(
                 maxWidth = maxWidth,
                 modifier = Modifier.align(Alignment.TopCenter),
-                batmanSizeProgress = transition[batmanSizeProgress]
+                batmanSizeProgress = properties.batmanSizeProgress
             )
             BatmanLogo(Modifier
-                .align(BiasAlignment(verticalBias = transition[batmanLogoVerticalBias], horizontalBias = 0f))
+                .align(BiasAlignment(verticalBias = properties.batmanLogoVerticalBias, horizontalBias = 0f))
                 .size(width = logoWidth, height = logoHeight)
             )
             BatmanWelcomeHint(Modifier
-                .graphicsLayer(alpha = transition[welcomeAlpha])
+                .graphicsLayer(alpha = properties.welcomeAlpha)
                 .align(BiasAlignment(verticalBias = 0.1f, horizontalBias =  0f))
             )
             BatmanPageButtons(Modifier
-                .graphicsLayer(alpha = transition[batmanButtonsAlpha])
+                .graphicsLayer(alpha = properties.batmanButtonsAlpha)
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 80.dp)
             )
@@ -110,53 +96,58 @@ enum class BatmanPageState {
     Completed
 }
 
-private val batmanLogoHeight = FloatPropKey()
-private val batmanLogoVerticalBias = FloatPropKey()
-private val welcomeAlpha = FloatPropKey()
-private val batmanSizeProgress = FloatPropKey()
-private val batmanButtonsAlpha = FloatPropKey()
+private data class BatmanUiProperties(
+    val batmanLogoHeight: Float,
+    val batmanLogoVerticalBias: Float,
+    val welcomeAlpha: Float,
+    val batmanSizeProgress: Float,
+    val batmanButtonsAlpha: Float,
+    val current: BatmanPageState
+)
 
-private fun pageTransition(maxHeight: Float) = transitionDefinition<BatmanPageState> {
-    state(BatmanPageState.LogoCovering) {
-        this[batmanLogoHeight] = maxHeight
-        this[batmanLogoVerticalBias] = 0f
-        this[welcomeAlpha] = 0f
-        this[batmanSizeProgress] = 3f
-        this[batmanButtonsAlpha] = 0f
+@Composable
+private fun buildUiProperties(transitionState: MutableTransitionState<BatmanPageState>, maxHeight: Float): BatmanUiProperties {
+    val transition = updateTransition(transitionState)
+    val tweenWithSimpleDelay = tween<Float>(durationMillis = 1000, delayMillis = 500)
+    val batmanLogoHeight: Float by transition.animateFloat( { tweenWithSimpleDelay }) {
+        when(transition.currentState) {
+            BatmanPageState.LogoCovering -> maxHeight
+            else -> 40f
+        }
     }
-    state(BatmanPageState.LogoCentered) {
-        this[batmanLogoHeight] = 40f
-        this[batmanLogoVerticalBias] = 0f
-        this[welcomeAlpha] = 0f
-        this[batmanSizeProgress] = 3f
-        this[batmanButtonsAlpha] = 0f
+    val batmanLogoVerticalBias: Float by transition.animateFloat( { tweenWithSimpleDelay }) {
+        when(transition.currentState) {
+            BatmanPageState.LogoCovering, BatmanPageState.LogoCentered -> 0f
+            BatmanPageState.LogoAndHint, BatmanPageState.Completed -> -0.3f
+        }
     }
-    state(BatmanPageState.LogoAndHint) {
-        this[batmanLogoHeight] = 40f
-        this[batmanLogoVerticalBias] = -0.3f
-        this[welcomeAlpha] = 1f
-        this[batmanSizeProgress] = 3f
-        this[batmanButtonsAlpha] = 0f
+    val welcomeAlpha: Float by transition.animateFloat( { tween(durationMillis = 800, delayMillis = 700) }) {
+        when(transition.currentState) {
+            BatmanPageState.LogoCovering, BatmanPageState.LogoCentered -> 0f
+            BatmanPageState.LogoAndHint, BatmanPageState.Completed -> 1f
+        }
     }
-    state(BatmanPageState.Completed) {
-        this[batmanLogoHeight] = 40f
-        this[batmanLogoVerticalBias] = -0.3f
-        this[welcomeAlpha] = 1f
-        this[batmanSizeProgress] = 1f
-        this[batmanButtonsAlpha] = 1f
+    val batmanSizeProgress: Float by transition.animateFloat( { tweenWithSimpleDelay }) {
+        when(transition.currentState) {
+            BatmanPageState.Completed -> 3f
+            else -> 1f
+        }
     }
-    transition(fromState = BatmanPageState.LogoCovering, toState = BatmanPageState.LogoCentered) {
-        batmanLogoHeight using tween(durationMillis = 1000, delayMillis = 500)
-    }
-    transition(fromState = BatmanPageState.LogoCentered, toState = BatmanPageState.LogoAndHint) {
-        batmanLogoVerticalBias using tween(durationMillis = 1000, delayMillis = 500)
-        welcomeAlpha using tween(durationMillis = 800, delayMillis = 700)
-    }
-    transition(fromState = BatmanPageState.LogoAndHint, toState = BatmanPageState.Completed) {
-        batmanSizeProgress using tween(durationMillis = 1000, delayMillis = 500)
-        batmanButtonsAlpha using tween(durationMillis = 1000, delayMillis = 500)
+    val batmanButtonsAlpha: Float by transition.animateFloat( { tweenWithSimpleDelay }) {
+        when(transition.currentState) {
+            BatmanPageState.Completed -> 1f
+            else -> 0f
+        }
     }
 
+    return BatmanUiProperties(
+        batmanLogoHeight = batmanLogoHeight,
+        batmanLogoVerticalBias = batmanLogoVerticalBias,
+        welcomeAlpha = welcomeAlpha,
+        batmanSizeProgress = batmanSizeProgress,
+        batmanButtonsAlpha = batmanButtonsAlpha,
+        current = transition.currentState
+    )
 
 }
 
@@ -164,6 +155,6 @@ private fun pageTransition(maxHeight: Float) = transitionDefinition<BatmanPageSt
 @Composable
 private fun BatmanPagePreview() {
     BatmanTheme {
-        BatmanPage()
+        AnimatedBatmanPage()
     }
 }
