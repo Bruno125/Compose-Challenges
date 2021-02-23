@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.AmbientDensity
 import androidx.compose.ui.unit.dp
-import com.bruno.aybar.composechallenges.common.AnimationStateHolder
 import com.bruno.aybar.composechallenges.ui.buttonHeight
 import com.bruno.aybar.composechallenges.ui.typography
 import kotlin.math.tan
@@ -36,9 +35,9 @@ enum class BackupCompletedState {
     HIDDEN, VISIBLE
 }
 
-class AnimatedCompletedState: AnimationStateHolder<BackupCompletedState>(
-    initialState = BackupCompletedState.HIDDEN
-) {
+class AnimatedCompletedState {
+
+    var state = BackupCompletedState.HIDDEN; private set
 
     fun update(ui: BackupUi) {
         state = when(ui) {
@@ -52,36 +51,10 @@ class AnimatedCompletedState: AnimationStateHolder<BackupCompletedState>(
 @Composable
 fun BackupCompleted(ui: BackupUi, modifier: Modifier, onOk: ()->Unit) {
     val stateHolder = remember { AnimatedCompletedState() }
+
     stateHolder.update(ui)
 
-    val transition: Transition<BackupCompletedState> = updateTransition(targetState = stateHolder.state)
-
-    val floatSpec = AnimationSpecBuilder<Float>()
-    val intSpec = AnimationSpecBuilder<Int>()
-
-    val completedProgress: Float by transition.animateFloat(
-        transitionSpec = { with(floatSpec) { buildAnimationSpec() } },
-        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 0f else 1f }
-    )
-    val topSpacing: Int by transition.animateInt(
-        transitionSpec = { with(intSpec) { buildAnimationSpec() } },
-        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 36 else 20 }
-    )
-    val textSeparation: Int by transition.animateInt(
-        transitionSpec = { with(intSpec) { buildAnimationSpec() } },
-        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 16 else 4 }
-    )
-    val buttonBottom: Int by transition.animateInt(
-        transitionSpec = { with(intSpec) { buildAnimationSpec() } },
-        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 8 else 24 }
-    )
-
-    val properties = BackupCompletedUiProperties(
-        completedProgress = completedProgress,
-        topSpacing = topSpacing,
-        textSeparation = textSeparation,
-        buttonBottom = buttonBottom,
-    )
+    val properties = buildUiProperties(stateHolder.state)
 
     ConstraintLayout(modifier) {
         val (checkRef, textRef, buttonRef) = createRefs()
@@ -182,6 +155,38 @@ private fun DrawScope.drawAnimatedCheck(progress: Float, stroke: Stroke, color: 
         y = line2_start.y - (line2_progress * tan2).coerceAtMost(h2)
     )
     drawLine(color, line2_start, line2_end, strokeWidth = stroke.width)
+}
+
+@Composable
+private fun buildUiProperties(state: BackupCompletedState): BackupCompletedUiProperties{
+    val transition: Transition<BackupCompletedState> = updateTransition(targetState = state)
+
+    val floatSpec = AnimationSpecBuilder<Float>()
+    val intSpec = AnimationSpecBuilder<Int>()
+
+    val completedProgress: Float by transition.animateFloat(
+        transitionSpec = { with(floatSpec) { buildAnimationSpec() } },
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 0f else 1f }
+    )
+    val topSpacing: Int by transition.animateInt(
+        transitionSpec = { with(intSpec) { buildAnimationSpec() } },
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 36 else 20 }
+    )
+    val textSeparation: Int by transition.animateInt(
+        transitionSpec = { with(intSpec) { buildAnimationSpec() } },
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 16 else 4 }
+    )
+    val buttonBottom: Int by transition.animateInt(
+        transitionSpec = { with(intSpec) { buildAnimationSpec() } },
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 8 else 24 }
+    )
+
+    return BackupCompletedUiProperties(
+        completedProgress = completedProgress,
+        topSpacing = topSpacing,
+        textSeparation = textSeparation,
+        buttonBottom = buttonBottom,
+    )
 }
 
 private class AnimationSpecBuilder<T> {

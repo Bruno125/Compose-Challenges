@@ -10,7 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AmbientAnimationClock
 
-abstract class LegacyAnimationStateHolder<T>(initialState: T) {
+abstract class AnimationStateHolder<T>(initialState: T) {
 
     /**
      * Represents the current state of the animation. Its value won't change
@@ -38,16 +38,10 @@ abstract class LegacyAnimationStateHolder<T>(initialState: T) {
 
 }
 
-abstract class AnimationStateHolder<T>(initialState: T) {
-
-    var state: T = initialState
-        protected set
-}
-
 @Composable
 fun <T> transition(
     definition: TransitionDefinition<T>,
-    stateHolder: LegacyAnimationStateHolder<T>,
+    stateHolder: AnimationStateHolder<T>,
     clock: AnimationClockObservable = AmbientAnimationClock.current,
     label: String? = null,
     onStateChangeFinished: ((T) -> Unit)? = null
@@ -85,7 +79,7 @@ fun <T> transition(
     )
 }
 
-class AnimationSequenceStateHolder<T>(private val sequence: List<T>): LegacyAnimationStateHolder<T>(
+class AnimationSequenceStateHolder<T>(private val sequence: List<T>): AnimationStateHolder<T>(
     initialState = sequence.firstOrNull() ?: throw RuntimeException("Sequence cannot be empty")
 ) {
 
