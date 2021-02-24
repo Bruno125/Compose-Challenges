@@ -129,8 +129,8 @@ private fun buildUiProperties(transitionState: MutableTransitionState<BatmanPage
     }
     val batmanSizeProgress: Float by transition.animateFloat( { tweenWithSimpleDelay }) {
         when(transition.currentState) {
-            BatmanPageState.Completed -> 3f
-            else -> 1f
+            BatmanPageState.Completed -> 1f
+            else -> 3f
         }
     }
     val batmanButtonsAlpha: Float by transition.animateFloat( { tweenWithSimpleDelay }) {
