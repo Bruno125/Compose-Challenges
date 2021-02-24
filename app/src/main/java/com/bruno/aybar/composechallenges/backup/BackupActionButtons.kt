@@ -83,8 +83,8 @@ private fun BackupButton(onClick: ()->Unit, properties: ButtonsUiProperties, mod
         onClick = onClick,
         modifier = modifier
             .alpha(properties.backupButtonAlpha)
-            .preferredWidth(240.dp * properties.backupButtonSizeMultiplier)
-            .preferredHeight(buttonHeight * properties.backupButtonSizeMultiplier),
+            .requiredWidth(240.dp * properties.backupButtonSizeMultiplier)
+            .requiredHeight(buttonHeight * properties.backupButtonSizeMultiplier),
         shape = RoundedCornerShape(10.dp)
     ) {
         Text(text = "Create Backup")
@@ -99,8 +99,8 @@ private fun CancelButton(onClick: ()->Unit, properties: ButtonsUiProperties, mod
         onClick = onClick,
         modifier = modifier
             .alpha(properties.cancelButtonAlpha)
-            .preferredWidth(properties.cancelButtonWidth.dp)
-            .preferredHeight(buttonHeight),
+            .requiredWidth(properties.cancelButtonWidth.dp)
+            .requiredHeight(buttonHeight),
     ) {
         Text(text = "Cancel")
     }

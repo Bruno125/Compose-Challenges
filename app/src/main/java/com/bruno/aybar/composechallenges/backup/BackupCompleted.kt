@@ -84,8 +84,8 @@ private fun OkButton(modifier: Modifier, onClick: () -> Unit, properties: Backup
     OutlinedButton(
         onClick = onClick,
         modifier = modifier
-            .preferredWidth(150.dp)
-            .preferredHeight(buttonHeight)
+            .requiredWidth(150.dp)
+            .requiredHeight(buttonHeight)
             .alpha(properties.completedProgress)
     ) {
         Text("Ok")

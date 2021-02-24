@@ -1,6 +1,7 @@
 package com.bruno.aybar.composechallenges.flappy
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -64,7 +65,7 @@ fun GameArea(viewModel: FlappyBirdViewModel, modifier: Modifier) {
         }
 
         Box(Modifier
-            .clickable(onClick = viewModel::onTap, indication = null, interactionState = remember { InteractionState() })
+            .clickable(remember { MutableInteractionSource() }, indication = null, onClick = viewModel::onTap)
             .fillMaxSize()
         ) {
             val currentState = state.value
