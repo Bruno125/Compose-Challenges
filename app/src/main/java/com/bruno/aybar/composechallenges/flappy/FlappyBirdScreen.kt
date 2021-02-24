@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import com.bruno.aybar.composechallenges.R
 
 val skyColor = Color(0xFF74B9F5)
@@ -114,7 +115,7 @@ private fun Bird(state: FlappyGameUi, modifier: Modifier) {
         is FlappyGameUi.Playing -> state.bird.rotation
     }
     Image(
-        bitmap = imageResource(id = R.drawable.bird),
+        painter = painterResource(id = R.drawable.bird),
         contentDescription = "Bird icon",
         modifier = modifier
             .size(48.dp)

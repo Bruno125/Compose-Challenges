@@ -18,10 +18,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.AmbientDensity
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.bruno.aybar.composechallenges.ui.buttonHeight
 import com.bruno.aybar.composechallenges.ui.typography
+import androidx.constraintlayout.compose.ConstraintLayout
 import kotlin.math.tan
 
 private data class BackupCompletedUiProperties(
@@ -114,7 +115,7 @@ private val tan2 = tan(Math.toRadians(45.0)).toFloat()
 @Composable
 private fun AnimatedCheck(progress: Float, modifier: Modifier) {
     val color = MaterialTheme.colors.primary
-    val stroke = with(AmbientDensity.current) { Stroke(2.dp.toPx()) }
+    val stroke = with(LocalDensity.current) { Stroke(2.dp.toPx()) }
 
     Canvas(modifier.size(100.dp)) {
         drawArc(color,

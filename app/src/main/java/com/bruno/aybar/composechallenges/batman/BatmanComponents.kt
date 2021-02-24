@@ -14,15 +14,17 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.bruno.aybar.composechallenges.R
 
 
 @Composable
 fun BatmanLogo(modifier: Modifier) {
     Image(
-        bitmap = imageResource(id = R.drawable.batman_logo),
+        painter = painterResource(id = R.drawable.batman_logo),
         contentDescription = "Batman logo",
         modifier = modifier
     )
@@ -61,7 +63,7 @@ fun BatmanButton(label: String, iconPosition: BatmanButtonIconPosition) {
                 modifier = Modifier.align(Alignment.Center)
             )
             Image(
-                bitmap = imageResource(id = R.drawable.batman_logo),
+                painter = painterResource(id = R.drawable.batman_logo),
                 contentDescription = null, // not needed because it's just decoration for button
                 colorFilter = ColorFilter.tint(Color.Gray.copy(alpha = 0.5f)),
                 modifier = Modifier
@@ -88,7 +90,7 @@ fun BatmanContent(modifier: Modifier, maxWidth: Dp, batmanSizeProgress: Float) {
     ConstraintLayout(modifier.size(maxWidth)) {
         val (backgroundRef, batmanRef) = createRefs()
         Image(
-            bitmap = imageResource(id = R.drawable.batman_background),
+            painter = painterResource(id = R.drawable.batman_background),
             contentDescription = null, // not needed because background is not informative
             contentScale = ContentScale.FillHeight,
             modifier = Modifier
@@ -99,7 +101,7 @@ fun BatmanContent(modifier: Modifier, maxWidth: Dp, batmanSizeProgress: Float) {
                 }
         )
         Image(
-            bitmap = imageResource(id = R.drawable.batman_alone),
+            painter = painterResource(id = R.drawable.batman_alone),
             contentDescription = null, // not needed because image is not informative
             contentScale = ContentScale.FillWidth,
             modifier = Modifier

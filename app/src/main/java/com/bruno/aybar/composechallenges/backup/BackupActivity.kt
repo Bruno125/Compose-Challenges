@@ -2,7 +2,7 @@ package com.bruno.aybar.composechallenges.backup
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.compose.ui.platform.setContent
+import androidx.activity.compose.setContent
 import androidx.lifecycle.ViewModelProvider
 import com.bruno.aybar.composechallenges.ui.ComposeChallengesTheme
 
