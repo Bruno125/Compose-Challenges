@@ -29,16 +29,23 @@ enum class CloudState {
 private val cloudColor = Color.White
 private const val expandedSize = 120f
 
-private data class CloudUiProperties(
-    val circleSize: Float,
-    val sideCloudsOffset: Float,
-    val exitBubblesProgress: Float,
-    val progress: Float,
-)
+private class CloudUiProperties(
+    circleSize: State<Float>,
+    sideCloudsOffset: State<Float>,
+    exitBubblesProgress: State<Float>,
+    progress: State<Float>,
+) {
+    val circleSize: Float by circleSize
+    val sideCloudsOffset: Float by sideCloudsOffset
+    val exitBubblesProgress: Float by exitBubblesProgress
+    val progress: Float by progress
+}
 
 class AnimatedCloudState {
     var state: CloudState = CloudState.CLOUD; private set
-    var progress = 0f; private set
+
+    private val _progress = mutableStateOf(0f)
+    val progress: State<Float> = _progress
 
     fun update(ui :BackupUi) {
         updateProgress(ui)
@@ -51,7 +58,7 @@ class AnimatedCloudState {
 
     private fun updateProgress(ui: BackupUi) {
         if(ui is BackupUi.BackupInProgress) {
-            progress = ui.progress / 100f
+            _progress.value = ui.progress / 100f
         }
     }
 
@@ -225,7 +232,7 @@ data class Bubble(
 private fun buildUiProperties(stateHolder: AnimatedCloudState): CloudUiProperties {
     val transition: Transition<CloudState> = updateTransition(stateHolder.state)
     val defaultDuration = 1000
-    val circleSize: Float by transition.animateFloat(
+    val circleSize = transition.animateFloat(
         transitionSpec = {
             if(CloudState.MERGED isTransitioningTo CloudState.COVERING) {
                 tween(delayMillis = 300, durationMillis = defaultDuration)
@@ -242,7 +249,7 @@ private fun buildUiProperties(stateHolder: AnimatedCloudState): CloudUiPropertie
         }
     )
 
-    val sideCloudsOffset: Float by transition.animateFloat(
+    val sideCloudsOffset = transition.animateFloat(
         transitionSpec = {
             if(CloudState.MERGED isTransitioningTo CloudState.COVERING) {
                 tween(delayMillis = 300)
@@ -259,7 +266,7 @@ private fun buildUiProperties(stateHolder: AnimatedCloudState): CloudUiPropertie
         }
     )
 
-    val exitBubblesProgress: Float by transition.animateFloat(
+    val exitBubblesProgress = transition.animateFloat(
         transitionSpec = {
             if(CloudState.MERGED isTransitioningTo CloudState.COVERING) {
                 tween(durationMillis = 1500)

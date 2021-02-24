@@ -8,18 +8,24 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.OutlinedButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.bruno.aybar.composechallenges.ui.buttonHeight
 
-private data class ButtonsUiProperties(
-    val backupButtonAlpha: Float,
-    val backupButtonSizeMultiplier: Float,
-    val cancelButtonAlpha: Float,
-    val cancelButtonWidth: Int,
-)
+private class ButtonsUiProperties(
+    backupButtonAlpha: State<Float>,
+    backupButtonSizeMultiplier: State<Float>,
+    cancelButtonAlpha: State<Float>,
+    cancelButtonWidth: State<Int>,
+) {
+    val backupButtonAlpha: Float by backupButtonAlpha
+    val backupButtonSizeMultiplier: Float by backupButtonSizeMultiplier
+    val cancelButtonAlpha: Float by cancelButtonAlpha
+    val cancelButtonWidth: Int by cancelButtonWidth
+}
 
 enum class ButtonsState {
     CreateBackup,
@@ -106,7 +112,7 @@ private fun buildUiProperties(state: ButtonsState): ButtonsUiProperties {
     val transition: Transition<ButtonsState> = updateTransition(state)
     val animationDuration = DefaultDurationMillis
 
-    val backupButtonAlpha: Float by transition.animateFloat(
+    val backupButtonAlpha = transition.animateFloat(
         transitionSpec = {
             if(ButtonsState.CreateBackup isTransitioningTo ButtonsState.Cancel) {
                 tween(delayMillis = animationDuration, easing = LinearEasing)
@@ -117,7 +123,7 @@ private fun buildUiProperties(state: ButtonsState): ButtonsUiProperties {
         targetValueByState = { if(it == ButtonsState.CreateBackup) 1f else 0f }
     )
 
-    val backupButtonSizeMultiplier: Float by transition.animateFloat(
+    val backupButtonSizeMultiplier = transition.animateFloat(
         transitionSpec = {
             if(ButtonsState.CreateBackup isTransitioningTo ButtonsState.Cancel) {
                 keyframes { 0.95f at animationDuration / 2 }
@@ -128,7 +134,7 @@ private fun buildUiProperties(state: ButtonsState): ButtonsUiProperties {
         targetValueByState = { 1f }
     )
 
-    val cancelButtonAlpha: Float by transition.animateFloat(
+    val cancelButtonAlpha = transition.animateFloat(
         transitionSpec = {
             if(ButtonsState.CreateBackup isTransitioningTo ButtonsState.Cancel) {
                 tween(delayMillis = animationDuration, easing = LinearEasing)
@@ -139,7 +145,7 @@ private fun buildUiProperties(state: ButtonsState): ButtonsUiProperties {
         targetValueByState = { if(it == ButtonsState.CreateBackup) 0f else 0.6f }
     )
 
-    val cancelButtonWidth: Int by transition.animateInt(
+    val cancelButtonWidth = transition.animateInt(
         transitionSpec = {
             if(ButtonsState.CreateBackup isTransitioningTo ButtonsState.Cancel) {
                 tween(delayMillis = animationDuration + 150)
