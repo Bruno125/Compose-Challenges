@@ -1,7 +1,10 @@
 package com.bruno.aybar.composechallenges.reveal_menu
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.Spring.DampingRatioHighBouncy
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -22,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,7 +39,12 @@ fun BottomRevealMenu() {
     var isMenuOpened by mutableStateOf(false)
     Scaffold(
         topBar = { CustomTopBar() },
-        floatingActionButton = { AddFloatingButton(onClick = { isMenuOpened = !isMenuOpened }) }
+        floatingActionButton = {
+            FloatingAddButton(
+                isOpened = isMenuOpened,
+                onClick = { isMenuOpened = !isMenuOpened },
+            )
+        }
     ) {
         Box(Modifier.background(DarkPurple)) {
             if(isMenuOpened) {
@@ -78,9 +87,17 @@ private fun CustomTopBar() {
 }
 
 @Composable
-private fun AddFloatingButton(onClick: ()->Unit) {
+private fun FloatingAddButton(isOpened: Boolean, onClick: ()->Unit) {
     FloatingActionButton(onClick = onClick) {
-        Icon(imageVector = Icons.Default.Add, contentDescription = "Add item button")
+        val rotation = animateFloatAsState(
+            targetValue = if(isOpened) -45f else 0f,
+            animationSpec = spring(DampingRatioHighBouncy)
+        )
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = "Add item button",
+            modifier = Modifier.rotate(rotation.value)
+        )
     }
 }
 
