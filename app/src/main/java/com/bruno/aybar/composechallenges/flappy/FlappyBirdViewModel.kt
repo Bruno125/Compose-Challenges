@@ -41,6 +41,7 @@ class FlappyBirdViewModel: ViewModel() {
                 when(it) {
                     is FlappyGameUi.Playing -> updateScore(it)
                     is FlappyGameUi.Finished -> hasStarted = false
+                    is FlappyGameUi.NotStarted -> Unit // do nothing
                 }
             }
         }
