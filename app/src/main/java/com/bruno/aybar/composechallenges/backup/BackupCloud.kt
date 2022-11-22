@@ -230,7 +230,7 @@ data class Bubble(
 
 @Composable
 private fun buildUiProperties(stateHolder: AnimatedCloudState): CloudUiProperties {
-    val transition: Transition<CloudState> = updateTransition(stateHolder.state)
+    val transition: Transition<CloudState> = updateTransition(stateHolder.state, label = "cloudTransition")
     val defaultDuration = 1000
     val circleSize = transition.animateFloat(
         transitionSpec = {
@@ -246,7 +246,7 @@ private fun buildUiProperties(stateHolder: AnimatedCloudState): CloudUiPropertie
                 CloudState.MERGED -> 1.5f
                 CloudState.COVERING -> 10F
             }
-        }
+        }, label = "circleSize"
     )
 
     val sideCloudsOffset = transition.animateFloat(
@@ -263,7 +263,7 @@ private fun buildUiProperties(stateHolder: AnimatedCloudState): CloudUiPropertie
                 CloudState.MERGED -> 1f
                 else -> 1f
             }
-        }
+        }, label = "sideCloudsOffset"
     )
 
     val exitBubblesProgress = transition.animateFloat(
@@ -279,7 +279,7 @@ private fun buildUiProperties(stateHolder: AnimatedCloudState): CloudUiPropertie
                 CloudState.COVERING -> 0.8f
                 else -> 0f
             }
-        }
+        }, label = "exitBubblesProgress"
     )
 
     return CloudUiProperties(

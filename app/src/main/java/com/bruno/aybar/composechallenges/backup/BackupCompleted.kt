@@ -130,6 +130,7 @@ private fun AnimatedCheck(progress: Float, modifier: Modifier) {
     }
 }
 
+@Suppress("UnnecessaryVariable")
 private fun DrawScope.drawAnimatedCheck(progress: Float, stroke: Stroke, color: Color) {
     val w1 = 20f
     val w2 = 55f
@@ -160,26 +161,33 @@ private fun DrawScope.drawAnimatedCheck(progress: Float, stroke: Stroke, color: 
 
 @Composable
 private fun buildUiProperties(state: BackupCompletedState): BackupCompletedUiProperties{
-    val transition: Transition<BackupCompletedState> = updateTransition(targetState = state)
+    val transition: Transition<BackupCompletedState> = updateTransition(
+        targetState = state,
+        label = "backupTransition"
+    )
 
     val floatSpec = AnimationSpecBuilder<Float>()
     val intSpec = AnimationSpecBuilder<Int>()
 
     val completedProgress: Float by transition.animateFloat(
         transitionSpec = { with(floatSpec) { buildAnimationSpec() } },
-        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 0f else 1f }
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 0f else 1f },
+        label = "completedProgress"
     )
     val topSpacing: Int by transition.animateInt(
         transitionSpec = { with(intSpec) { buildAnimationSpec() } },
-        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 36 else 20 }
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 36 else 20 },
+        label = "topSpacing"
     )
     val textSeparation: Int by transition.animateInt(
         transitionSpec = { with(intSpec) { buildAnimationSpec() } },
-        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 16 else 4 }
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 16 else 4 },
+        label = "textSeparation"
     )
     val buttonBottom: Int by transition.animateInt(
         transitionSpec = { with(intSpec) { buildAnimationSpec() } },
-        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 8 else 24 }
+        targetValueByState = { if(it == BackupCompletedState.HIDDEN) 8 else 24 },
+        label = "buttonBottom"
     )
 
     return BackupCompletedUiProperties(

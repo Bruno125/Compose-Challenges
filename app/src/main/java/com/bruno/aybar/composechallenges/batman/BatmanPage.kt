@@ -107,38 +107,54 @@ private data class BatmanUiProperties(
 
 @Composable
 private fun buildUiProperties(transitionState: MutableTransitionState<BatmanPageState>, maxHeight: Float): BatmanUiProperties {
-    val transition = updateTransition(transitionState)
+    val transition = updateTransition(transitionState, label = "batmanTransition")
     val tweenWithSimpleDelay = tween<Float>(durationMillis = 1000, delayMillis = 500)
-    val batmanLogoHeight: Float by transition.animateFloat( { tweenWithSimpleDelay }) {
-        when(transition.currentState) {
+    val batmanLogoHeight: Float by transition.animateFloat( { tweenWithSimpleDelay }, label = "batmanLogoHeight") {
+        when(it) {
             BatmanPageState.LogoCovering -> maxHeight
             else -> 40f
         }
     }
-    val batmanLogoVerticalBias: Float by transition.animateFloat( { tweenWithSimpleDelay }) {
-        when(transition.currentState) {
-            BatmanPageState.LogoCovering, BatmanPageState.LogoCentered -> 0f
-            BatmanPageState.LogoAndHint, BatmanPageState.Completed -> -0.3f
+    val batmanLogoVerticalBias: Float by transition.animateFloat(
+        transitionSpec = { tweenWithSimpleDelay },
+        label = "batmanLogoVerticalBias",
+        targetValueByState = { targetState ->
+            when(targetState) {
+                BatmanPageState.LogoCovering, BatmanPageState.LogoCentered -> 0f
+                BatmanPageState.LogoAndHint, BatmanPageState.Completed -> -0.3f
+            }
         }
-    }
-    val welcomeAlpha: Float by transition.animateFloat( { tween(durationMillis = 800, delayMillis = 700) }) {
-        when(transition.currentState) {
-            BatmanPageState.LogoCovering, BatmanPageState.LogoCentered -> 0f
-            BatmanPageState.LogoAndHint, BatmanPageState.Completed -> 1f
+    )
+    val welcomeAlpha: Float by transition.animateFloat(
+        transitionSpec = { tween(durationMillis = 800, delayMillis = 700) },
+        label = "welcomeAlpha",
+        targetValueByState = { targetState ->
+            when(targetState) {
+                BatmanPageState.LogoCovering, BatmanPageState.LogoCentered -> 0f
+                BatmanPageState.LogoAndHint, BatmanPageState.Completed -> 1f
+            }
         }
-    }
-    val batmanSizeProgress: Float by transition.animateFloat( { tweenWithSimpleDelay }) {
-        when(transition.currentState) {
-            BatmanPageState.Completed -> 1f
-            else -> 3f
+    )
+    val batmanSizeProgress: Float by transition.animateFloat(
+        transitionSpec = { tweenWithSimpleDelay },
+        label = "batmanSizeProgress",
+        targetValueByState = { targetState ->
+            when(targetState) {
+                BatmanPageState.Completed -> 1f
+                else -> 3f
+            }
         }
-    }
-    val batmanButtonsAlpha: Float by transition.animateFloat( { tweenWithSimpleDelay }) {
-        when(transition.currentState) {
-            BatmanPageState.Completed -> 1f
-            else -> 0f
+    )
+    val batmanButtonsAlpha: Float by transition.animateFloat(
+        transitionSpec = { tweenWithSimpleDelay },
+        label = "batmanButtonsAlpha",
+        targetValueByState = { targetState ->
+            when(targetState) {
+                BatmanPageState.Completed -> 1f
+                else -> 0f
+            }
         }
-    }
+    )
 
     return BatmanUiProperties(
         batmanLogoHeight = batmanLogoHeight,

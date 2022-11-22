@@ -19,6 +19,7 @@ fun FlappyBirdTheme(content: @Composable() () -> Unit) {
         surface = skyColor,
         background = brown,
         onPrimary = Color.White,
+        onSecondary = Color.White,
         onBackground = Color.White,
         onSurface = Color.White
     )
