@@ -117,7 +117,7 @@ private fun buildUiProperties(state: BodyState): BackupBodyUiProperties {
                 BodyState.LAST_BACKUP -> 1f
                 BodyState.UPLOADING -> 0f
             }
-        }
+        }, label = "lastBackupAlpha"
     )
     val lastBackupHintOffset: Int by transition.animateInt(
         transitionSpec = {
@@ -131,7 +131,7 @@ private fun buildUiProperties(state: BodyState): BackupBodyUiProperties {
                 BodyState.LAST_BACKUP -> 0
                 BodyState.UPLOADING -> 15
             }
-        }
+        }, label = "lastBackupHintOffset"
     )
     val lastBackupDateOffset: Int by transition.animateInt(
         transitionSpec = {
@@ -145,7 +145,7 @@ private fun buildUiProperties(state: BodyState): BackupBodyUiProperties {
                 BodyState.LAST_BACKUP -> 0
                 BodyState.UPLOADING -> 40
             }
-        }
+        }, label = "lastBackupDateOffset"
     )
     val uploadingAlpha: Float by transition.animateFloat(
         transitionSpec = {
@@ -159,7 +159,7 @@ private fun buildUiProperties(state: BodyState): BackupBodyUiProperties {
                 BodyState.LAST_BACKUP -> 0f
                 BodyState.UPLOADING -> 1f
             }
-        }
+        }, label = "uploadingAlpha"
     )
     val uploadingOffset: Int by transition.animateInt(
         transitionSpec = {
@@ -173,7 +173,7 @@ private fun buildUiProperties(state: BodyState): BackupBodyUiProperties {
                 BodyState.LAST_BACKUP -> 30
                 BodyState.UPLOADING -> 0
             }
-        }
+        }, label = "uploadingOffset"
     )
     return BackupBodyUiProperties(
         lastBackupAlpha = lastBackupAlpha,

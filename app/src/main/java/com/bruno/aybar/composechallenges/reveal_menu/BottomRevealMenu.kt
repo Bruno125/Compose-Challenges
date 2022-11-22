@@ -18,10 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,7 +33,7 @@ private val DATA = (1..100).map { "Item $it" }
 
 @Composable
 fun BottomRevealMenu() {
-    var isMenuOpened by mutableStateOf(false)
+    var isMenuOpened by remember { mutableStateOf(false) }
     Scaffold(
         topBar = { CustomTopBar() },
         floatingActionButton = {
@@ -45,8 +42,8 @@ fun BottomRevealMenu() {
                 onClick = { isMenuOpened = !isMenuOpened },
             )
         }
-    ) {
-        Box(Modifier.background(DarkPurple)) {
+    ) { scaffoldPaddings ->
+        Box(Modifier.background(DarkPurple).padding(scaffoldPaddings)) {
             if(isMenuOpened) {
                 SideMenuOptions(
                     Modifier
@@ -191,7 +188,7 @@ private val LightColorPalette = lightColors(
 @Composable
 fun BottomRevealChallengeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val colors = if (darkTheme) {
         DarkColorPalette

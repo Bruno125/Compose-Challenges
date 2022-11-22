@@ -1,5 +1,6 @@
 package com.bruno.aybar.composechallenges.backup
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.*
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.foundation.layout.*
@@ -120,9 +121,10 @@ private fun buildUiProperties(state: ButtonsState): ButtonsUiProperties {
                 tween(easing = LinearEasing)
             }
         },
-        targetValueByState = { if(it == ButtonsState.CreateBackup) 1f else 0f }
+        targetValueByState = { if(it == ButtonsState.CreateBackup) 1f else 0f }, label = ""
     )
 
+    @SuppressLint("UnusedTransitionTargetStateParameter")
     val backupButtonSizeMultiplier = transition.animateFloat(
         transitionSpec = {
             if(ButtonsState.CreateBackup isTransitioningTo ButtonsState.Cancel) {
@@ -131,7 +133,7 @@ private fun buildUiProperties(state: ButtonsState): ButtonsUiProperties {
                 keyframes { 1.05f at animationDuration / 2 }
             }
         },
-        targetValueByState = { 1f }
+        targetValueByState = { 1f }, label = "backupButtonSizeMultiplier"
     )
 
     val cancelButtonAlpha = transition.animateFloat(
@@ -142,7 +144,7 @@ private fun buildUiProperties(state: ButtonsState): ButtonsUiProperties {
                 tween(easing = LinearEasing)
             }
         },
-        targetValueByState = { if(it == ButtonsState.CreateBackup) 0f else 0.6f }
+        targetValueByState = { if(it == ButtonsState.CreateBackup) 0f else 0.6f }, label = "cancelButtonAlpha"
     )
 
     val cancelButtonWidth = transition.animateInt(
@@ -153,7 +155,7 @@ private fun buildUiProperties(state: ButtonsState): ButtonsUiProperties {
                 tween()
             }
         },
-        targetValueByState = { if(it == ButtonsState.CreateBackup) 180 else 150 }
+        targetValueByState = { if(it == ButtonsState.CreateBackup) 180 else 150 }, label = "cancelButtonWidth"
     )
 
     return ButtonsUiProperties(
